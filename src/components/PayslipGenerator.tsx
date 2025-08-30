@@ -166,45 +166,43 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
           </div>
         </div>
 
-        <div className="p-6">
+        <div style={{ padding: '2rem' }}>
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <span className="text-red-700">{error}</span>
+            <div className="error-alert" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertCircle style={{ width: '1.25rem', height: '1.25rem', color: '#dc2626' }} />
+              <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-green-700">{success}</span>
+            <div className="success-alert" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <CheckCircle style={{ width: '1.25rem', height: '1.25rem', color: '#059669' }} />
+              <span>{success}</span>
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid-3">
             {/* Configuration Panel */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-200">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-blue-100 p-1.5 rounded-lg">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div>
+              <div className="config-panel">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <div style={{ background: '#dbeafe', padding: '0.375rem', borderRadius: '8px' }}>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#2563eb' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800">Payroll Configuration</h3>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>Payroll Configuration</h3>
                 </div>
                 
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {sheetInfo && (
-                    <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-green-500 w-2 h-2 rounded-full"></div>
-                        <div className="text-sm">
-                          <div className="font-semibold text-green-800">Google Sheet Connected</div>
-                          <div className="text-xs text-green-600 font-mono">
-                            ID: ...{sheetInfo.slice(-8)}
-                          </div>
+                    <div className="status-connected" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ background: '#10b981', width: '0.5rem', height: '0.5rem', borderRadius: '50%' }}></div>
+                      <div style={{ fontSize: '0.875rem' }}>
+                        <div style={{ fontWeight: '600', color: '#065f46' }}>Google Sheet Connected</div>
+                        <div style={{ fontSize: '0.75rem', color: '#059669', fontFamily: 'monospace' }}>
+                          ID: ...{sheetInfo.slice(-8)}
                         </div>
                       </div>
                     </div>
