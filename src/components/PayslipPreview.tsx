@@ -186,24 +186,13 @@ export const PayslipPreview: React.FC<PayslipPreviewProps> = ({
                     backgroundColor: '#f8f9fa',
                     width: '25%'
                   }}>
-                    Employee ID
+                    Designation
                   </td>
                   <td style={{ border: '1px solid #000', padding: '8px', width: '25%' }}>
-                    {employee.employeeId}
+                    {employee.designation || 'Not specified'}
                   </td>
                 </tr>
                 <tr>
-                  <td style={{ 
-                    border: '1px solid #000', 
-                    padding: '8px', 
-                    fontWeight: 'bold',
-                    backgroundColor: '#f8f9fa'
-                  }}>
-                    Designation
-                  </td>
-                  <td style={{ border: '1px solid #000', padding: '8px' }}>
-                    {employee.designation || 'Not specified'}
-                  </td>
                   <td style={{ 
                     border: '1px solid #000', 
                     padding: '8px', 
@@ -214,6 +203,17 @@ export const PayslipPreview: React.FC<PayslipPreviewProps> = ({
                   </td>
                   <td style={{ border: '1px solid #000', padding: '8px', fontWeight: 'bold' }}>
                     ₹{(employee.esi || 0).toLocaleString('en-IN')}
+                  </td>
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    Pay Period
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>
+                    {month} {year}
                   </td>
                 </tr>
                 <tr>

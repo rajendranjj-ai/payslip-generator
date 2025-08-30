@@ -113,42 +113,30 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                     }}
                   />
                 </th>
-                <th style={{ 
-                  textAlign: 'left', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '200px'
-                }}>
-                  Employee Name
-                </th>
-                <th style={{ 
-                  textAlign: 'left', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '120px'
-                }}>
-                  Employee ID
-                </th>
-                <th style={{ 
-                  textAlign: 'left', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '150px'
-                }}>
-                  Designation
-                </th>
+                                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '250px'
+                      }}>
+                        Employee Name
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '150px'
+                      }}>
+                        Designation
+                      </th>
                 <th style={{ 
                   textAlign: 'right', 
                   padding: '12px 16px', 
@@ -256,15 +244,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                           />
                         )}
                       </div>
-                    </td>
-                    <td style={{ 
-                      padding: '12px 16px', 
-                      fontSize: '13px',
-                      color: '#374151',
-                      fontFamily: 'monospace',
-                      fontWeight: '500'
-                    }}>
-                      {employee.employeeId}
                     </td>
                     <td style={{ 
                       padding: '12px 16px', 

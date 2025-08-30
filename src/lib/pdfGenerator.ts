@@ -131,16 +131,16 @@ export class PayslipPDFGenerator {
                 <span class="label">Employee Name:</span> ${employee.name}
               </div>
               <div class="info-row">
-                <span class="label">Employee ID:</span> ${employee.employeeId}
-              </div>
-              <div class="info-row">
                 <span class="label">Designation:</span> ${employee.designation}
               </div>
               <div class="info-row">
-                <span class="label">Department:</span> ${employee.department}
+                <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
               </div>
               <div class="info-row">
-                <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
+                <span class="label">ESI Amount:</span> ₹${(employee.esi || 0).toLocaleString('en-IN')}
+              </div>
+              <div class="info-row">
+                <span class="label">PF Amount:</span> ₹${(employee.providentFund || 0).toLocaleString('en-IN')}
               </div>
             </div>
             <div class="employee-right">
