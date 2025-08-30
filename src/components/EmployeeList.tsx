@@ -43,11 +43,13 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
 
   if (employees.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-lg p-8 text-center">
-        <Users className="h-12 w-12 text-black mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-black mb-2">No Employees Found</h3>
-        <p className="text-black">
-          Please enter a valid Google Sheet ID to load employee data.
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-8 text-center border border-gray-200">
+        <div className="bg-blue-100 w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+          <Users className="h-8 w-8 text-blue-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">No Employees Found</h3>
+        <p className="text-gray-600">
+          Click "Refresh Data" to load employee information from Google Sheets.
         </p>
       </div>
     );
