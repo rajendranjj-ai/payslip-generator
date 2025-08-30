@@ -1,0 +1,61 @@
+{
+  "name": "Payslip Generator",
+  "description": "Modern payslip generator with Google Sheets integration for St.Madonna's Matric Hr Sec School",
+  "website": "https://github.com/rajendranjj-ai/payslip-generator",
+  "repository": "https://github.com/rajendranjj-ai/payslip-generator",
+  "logo": "https://nextjs.org/static/favicon/favicon.ico",
+  "success_url": "/",
+  "keywords": ["nextjs", "payslip", "generator", "google-sheets", "typescript", "school"],
+  "env": {
+    "GOOGLE_SHEETS_PROJECT_ID": {
+      "description": "Google Cloud Project ID",
+      "required": true
+    },
+    "GOOGLE_SHEETS_PRIVATE_KEY_ID": {
+      "description": "Google Service Account Private Key ID", 
+      "required": true
+    },
+    "GOOGLE_SHEETS_PRIVATE_KEY": {
+      "description": "Google Service Account Private Key (with \\n for line breaks)",
+      "required": true
+    },
+    "GOOGLE_SHEETS_CLIENT_EMAIL": {
+      "description": "Google Service Account Email",
+      "required": true
+    },
+    "GOOGLE_SHEETS_CLIENT_ID": {
+      "description": "Google Service Account Client ID",
+      "required": true
+    },
+    "DEFAULT_SPREADSHEET_ID": {
+      "description": "Google Sheet ID containing employee data",
+      "required": true
+    },
+    "NEXT_PUBLIC_APP_NAME": {
+      "description": "Application name",
+      "value": "Payslip Generator",
+      "required": false
+    },
+    "NEXT_PUBLIC_COMPANY_NAME": {
+      "description": "School/Company name for payslips",
+      "value": "St.Madonna's Matric Hr Sec School", 
+      "required": true
+    },
+    "NEXT_PUBLIC_COMPANY_ADDRESS": {
+      "description": "School/Company address for payslips",
+      "value": "Sattur - Sivakasi - Kalugumalai Rd, Kalugumalai, Tamil Nadu 628552",
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

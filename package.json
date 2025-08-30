@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "echo 'Setting up Payslip Generator...' && echo 'Please follow the setup instructions in README.md'"
+    "setup": "echo 'Setting up Payslip Generator...' && echo 'Please follow the setup instructions in README.md'",
+    "vercel-build": "next build",
+    "postbuild": "echo 'Build completed successfully for Vercel deployment'",
+    "type-check": "tsc --noEmit",
+    "preview": "next build && next start"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",

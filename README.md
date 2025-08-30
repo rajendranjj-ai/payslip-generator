@@ -153,6 +153,18 @@ Your Google Sheet should have the following columns (Row 1 should contain header
 - **PDF Generation**: HTML to PDF conversion
 - **Deployment**: Vercel (recommended)
 
+## 🚀 Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/rajendranjj-ai/payslip-generator)
+
+**One-click deployment:**
+1. Click the button above
+2. Connect your GitHub account
+3. Configure environment variables
+4. Deploy!
+
+**See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment guide.**
+
 ## Contributing
 
 1. Fork the repository
