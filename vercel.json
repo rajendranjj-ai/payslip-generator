@@ -18,10 +18,9 @@
   },
   "functions": {
     "src/app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 10
     }
   },
-  "regions": ["sin1", "hnd1"],
   "github": {
     "autoDeployments": true
   }
