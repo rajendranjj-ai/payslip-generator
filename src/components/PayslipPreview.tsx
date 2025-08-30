@@ -126,13 +126,11 @@ export const PayslipPreview: React.FC<PayslipPreviewProps> = ({
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-800 p-2">House Rent Allowance</td>
+                  <td className="border border-gray-800 p-2"></td>
+                  <td className="border border-gray-800 p-2"></td>
+                  <td className="border border-gray-800 p-2">ESI</td>
                   <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {(employee.hra || 0).toLocaleString('en-IN')}
-                  </td>
-                  <td className="border border-gray-800 p-2">Income Tax</td>
-                  <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {(employee.incomeTax || 0).toLocaleString('en-IN')}
+                    {(employee.esi || 0).toLocaleString('en-IN')}
                   </td>
                 </tr>
                 <tr>

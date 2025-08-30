@@ -16,6 +16,7 @@ export interface Employee {
   providentFund?: number;
   professionalTax?: number;
   incomeTax?: number;
+  esi?: number;
   otherDeductions?: number;
   bankName?: string;
   accountNumber?: string;

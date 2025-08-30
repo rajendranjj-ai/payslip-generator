@@ -14,31 +14,29 @@ export class PayslipCalculator {
 
     // Earnings - handle missing fields gracefully
     const basicSalary = employee.basicSalary * salaryRatio;
-    const hra = (employee.hra || 0) * salaryRatio;
-    // Remove: DA, Conveyance, Medical, Special allowances
+    // Remove: HRA from earnings
     
-    const grossEarnings = basicSalary + hra;
+    const grossEarnings = basicSalary;
 
     // Deductions - handle missing fields gracefully
     const providentFund = (employee.providentFund || 0) * salaryRatio;
-    // Remove: Professional Tax
-    const incomeTax = (employee.incomeTax || 0) * salaryRatio;
+    // Remove: Professional Tax and Income Tax
+    const esi = (employee.esi || 0) * salaryRatio; // Add ESI
     const otherDeductions = (employee.otherDeductions || 0) * salaryRatio;
 
-    const totalDeductions = providentFund + incomeTax + otherDeductions;
+    const totalDeductions = providentFund + esi + otherDeductions;
 
     // Net Salary
     const netSalary = grossEarnings - totalDeductions;
 
-    return {
-      employee: {
-        ...employee,
-        basicSalary: Math.round(basicSalary),
-        hra: Math.round(hra),
-        providentFund: Math.round(providentFund),
-        incomeTax: Math.round(incomeTax),
-        otherDeductions: Math.round(otherDeductions),
-      },
+      return {
+    employee: {
+      ...employee,
+      basicSalary: Math.round(basicSalary),
+      providentFund: Math.round(providentFund),
+      esi: Math.round(esi),
+      otherDeductions: Math.round(otherDeductions),
+    },
       month,
       year,
       workingDays,
