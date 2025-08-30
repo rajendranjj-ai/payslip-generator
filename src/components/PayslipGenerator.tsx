@@ -142,28 +142,26 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
   };
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
-      <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-lg">
-                <FileText className="h-6 w-6 text-white" />
+    <div className={`app-container ${className}`}>
+      <div className="main-card">
+        <div className="card-header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '8px' }}>
+                <FileText className="h-6 w-6" style={{ color: 'white' }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', margin: 0 }}>
                   Employee Payslip Generator
                 </h1>
-                <p className="text-blue-100 mt-1">
+                <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '0.25rem', margin: 0 }}>
                   Generate professional payslips with Google Sheets integration
                 </p>
               </div>
             </div>
-            <div className="hidden md:block">
-              <div className="bg-white/10 px-4 py-2 rounded-lg border border-white/20">
-                <p className="text-white text-sm font-medium">Current Month</p>
-                <p className="text-white text-lg font-bold">{months[selectedMonth]} {selectedYear}</p>
-              </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <p style={{ color: 'white', fontSize: '0.875rem', fontWeight: '500', margin: 0 }}>Current Month</p>
+              <p style={{ color: 'white', fontSize: '1.125rem', fontWeight: 'bold', margin: 0 }}>{months[selectedMonth]} {selectedYear}</p>
             </div>
           </div>
         </div>

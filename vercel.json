@@ -5,7 +5,6 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 10
@@ -13,5 +12,6 @@
   },
   "github": {
     "autoDeployments": true
-  }
+  },
+  "public": true
 }
