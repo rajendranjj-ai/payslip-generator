@@ -121,9 +121,9 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         color: '#6b7280',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
-                        minWidth: '250px'
+                        minWidth: '200px'
                       }}>
-                        Employee Name
+                        Name
                       </th>
                       <th style={{ 
                         textAlign: 'left', 
@@ -133,46 +133,58 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         color: '#6b7280',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
-                        minWidth: '150px'
+                        minWidth: '130px'
                       }}>
                         Designation
                       </th>
-                <th style={{ 
-                  textAlign: 'right', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '120px'
-                }}>
-                  ESI Amount
-                </th>
-                <th style={{ 
-                  textAlign: 'right', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '120px'
-                }}>
-                  Basic Salary
-                </th>
-                <th style={{ 
-                  textAlign: 'right', 
-                  padding: '12px 16px', 
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  minWidth: '120px'
-                }}>
-                  Net Salary
-                </th>
+                      <th style={{ 
+                        textAlign: 'right', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '120px'
+                      }}>
+                        Basic Salary
+                      </th>
+                      <th style={{ 
+                        textAlign: 'right', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '100px'
+                      }}>
+                        PF
+                      </th>
+                      <th style={{ 
+                        textAlign: 'right', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '100px'
+                      }}>
+                        ESI
+                      </th>
+                      <th style={{ 
+                        textAlign: 'right', 
+                        padding: '12px 16px', 
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: '120px'
+                      }}>
+                        Net Salary
+                      </th>
                 <th style={{ 
                   textAlign: 'center', 
                   padding: '12px 16px', 
@@ -259,7 +271,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                       textAlign: 'right',
                       fontWeight: '500'
                     }}>
-                      ₹{(employee.esi || 0).toLocaleString('en-IN')}
+                      ₹{employee.basicSalary.toLocaleString('en-IN')}
                     </td>
                     <td style={{ 
                       padding: '12px 16px', 
@@ -268,7 +280,16 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                       textAlign: 'right',
                       fontWeight: '500'
                     }}>
-                      ₹{employee.basicSalary.toLocaleString('en-IN')}
+                      ₹{(employee.providentFund || 0).toLocaleString('en-IN')}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      color: '#374151',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      ₹{(employee.esi || 0).toLocaleString('en-IN')}
                     </td>
                     <td style={{ 
                       padding: '12px 16px', 
