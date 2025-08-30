@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Minimal Vercel-compatible configuration
-  serverExternalPackages: ['googleapis']
+  // Empty configuration for maximum Vercel compatibility
+  // Google APIs will be handled automatically by Next.js
 };
 
 module.exports = nextConfig;
