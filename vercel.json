@@ -5,17 +5,7 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-  "env": {
-    "GOOGLE_SHEETS_PROJECT_ID": "@google-sheets-project-id",
-    "GOOGLE_SHEETS_PRIVATE_KEY_ID": "@google-sheets-private-key-id", 
-    "GOOGLE_SHEETS_PRIVATE_KEY": "@google-sheets-private-key",
-    "GOOGLE_SHEETS_CLIENT_EMAIL": "@google-sheets-client-email",
-    "GOOGLE_SHEETS_CLIENT_ID": "@google-sheets-client-id",
-    "DEFAULT_SPREADSHEET_ID": "@default-spreadsheet-id",
-    "NEXT_PUBLIC_APP_NAME": "@next-public-app-name",
-    "NEXT_PUBLIC_COMPANY_NAME": "@next-public-company-name",
-    "NEXT_PUBLIC_COMPANY_ADDRESS": "@next-public-company-address"
-  },
+
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 10
