@@ -176,10 +176,10 @@ export class PayslipPDFGenerator {
               <td class="amount">${(employee.providentFund || 0).toLocaleString('en-IN')}</td>
             </tr>
             <tr>
-              <td>House Rent Allowance</td>
-              <td class="amount">${(employee.hra || 0).toLocaleString('en-IN')}</td>
-              <td>Income Tax</td>
-              <td class="amount">${(employee.incomeTax || 0).toLocaleString('en-IN')}</td>
+              <td></td>
+              <td></td>
+              <td>ESI</td>
+              <td class="amount">${(employee.esi || 0).toLocaleString('en-IN')}</td>
             </tr>
             <tr>
               <td></td>
