@@ -19,168 +19,501 @@ export const PayslipPreview: React.FC<PayslipPreviewProps> = ({
   const { employee, month, year, workingDays, actualWorkingDays, grossEarnings, totalDeductions, netSalary, generatedDate } = payslip;
   const netSalaryInWords = PayslipCalculator.numberToWords(netSalary);
 
+  // Payslip preview component ready
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        zIndex: 9999
+      }}
+      onClick={onClose}
+    >
+      <div 
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          maxWidth: '900px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          border: '1px solid #e5e7eb'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-black">Payslip Preview</h2>
-          <div className="flex items-center gap-2">
+        <div 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem',
+            borderBottom: '2px solid #e5e7eb',
+            backgroundColor: '#f9fafb'
+          }}
+        >
+          <h2 style={{ 
+            fontSize: '1.25rem', 
+            fontWeight: 'bold', 
+            color: '#111827',
+            margin: 0 
+          }}>
+            📄 Payslip Preview
+          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
               onClick={onDownload}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
             >
-              <Download className="h-4 w-4" />
+              <Download style={{ width: '16px', height: '16px' }} />
               Download PDF
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-black hover:text-black hover:bg-gray-100 rounded-md"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'transparent',
+                color: '#374151',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <X className="h-5 w-5" />
+              <X style={{ width: '20px', height: '20px' }} />
             </button>
           </div>
         </div>
 
         {/* Payslip Content */}
-        <div className="p-6">
-          <div className="border-2 border-gray-800 bg-white">
+        <div style={{ padding: '1.5rem' }}>
+          <div style={{ 
+            border: '3px solid #000', 
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            overflow: 'hidden'
+          }}>
             {/* Company Header */}
-            <div className="text-center p-6 border-b-2 border-gray-800 bg-gray-50">
-              <h1 className="text-2xl font-bold mb-2">
-                {process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'}
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '1.5rem', 
+              borderBottom: '2px solid #000', 
+              backgroundColor: '#f8f9fa' 
+            }}>
+              <h1 style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: 'bold', 
+                color: '#000',
+                margin: '0 0 0.5rem 0'
+              }}>
+                {process.env.NEXT_PUBLIC_COMPANY_NAME || 'St.Madonna\'s Matric Hr Sec School'}
               </h1>
-              <p className="text-sm mb-4">
-                {process.env.NEXT_PUBLIC_COMPANY_ADDRESS || 'Your Company Address'}
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: '#000',
+                margin: '0 0 1rem 0'
+              }}>
+                {process.env.NEXT_PUBLIC_COMPANY_ADDRESS || 'Sattur - Sivakasi - Kalugumalai Rd, Kalugumalai, Tamil Nadu 628552'}
               </p>
-              <h2 className="text-lg font-bold underline">SALARY SLIP</h2>
+              <h2 style={{ 
+                fontSize: '1.125rem', 
+                fontWeight: 'bold',
+                color: '#000',
+                textDecoration: 'underline',
+                margin: 0
+              }}>
+                SALARY SLIP
+              </h2>
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: '#000',
+                margin: '0.5rem 0 0 0'
+              }}>
+                For the month of {month} {year}
+              </p>
             </div>
 
-            {/* Employee Information */}
-            <div className="flex p-4 border-b border-gray-800">
-              <div className="flex-1">
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Employee Name:</span>
-                  {employee.name}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Employee ID:</span>
-                  {employee.employeeId}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Designation:</span>
-                  {employee.designation || 'Not specified'}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Department:</span>
-                  {employee.department || 'Not specified'}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Date of Joining:</span>
-                  {employee.dateOfJoining || 'Not specified'}
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Pay Period:</span>
-                  {month} {year}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Working Days:</span>
-                  {workingDays}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Actual Working Days:</span>
-                  {actualWorkingDays}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Generated Date:</span>
-                  {generatedDate}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold inline-block w-36">Account No:</span>
-                  {employee.accountNumber || 'Not provided'}
-                </div>
-              </div>
-            </div>
-
-            {/* Salary Table */}
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-800 p-3 text-center font-bold">EARNINGS</th>
-                  <th className="border border-gray-800 p-3 text-center font-bold w-24">AMOUNT (₹)</th>
-                  <th className="border border-gray-800 p-3 text-center font-bold">DEDUCTIONS</th>
-                  <th className="border border-gray-800 p-3 text-center font-bold w-24">AMOUNT (₹)</th>
-                </tr>
-              </thead>
+            {/* Employee Information Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td className="border border-gray-800 p-2">Basic Salary</td>
-                  <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {employee.basicSalary.toLocaleString('en-IN')}
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa',
+                    width: '25%'
+                  }}>
+                    Employee Name
                   </td>
-                  <td className="border border-gray-800 p-2">Provident Fund</td>
-                  <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {(employee.providentFund || 0).toLocaleString('en-IN')}
+                  <td style={{ border: '1px solid #000', padding: '8px', width: '25%' }}>
+                    {employee.name}
+                  </td>
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa',
+                    width: '25%'
+                  }}>
+                    Employee ID
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '8px', width: '25%' }}>
+                    {employee.employeeId}
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-800 p-2"></td>
-                  <td className="border border-gray-800 p-2"></td>
-                  <td className="border border-gray-800 p-2">ESI</td>
-                  <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {(employee.esi || 0).toLocaleString('en-IN')}
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    Designation
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>
+                    {employee.designation || 'Not specified'}
+                  </td>
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    ESI Amount
+                  </td>
+                  <td style={{ border: '1px solid #000', padding: '8px', fontWeight: 'bold' }}>
+                    ₹{(employee.esi || 0).toLocaleString('en-IN')}
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-800 p-2"></td>
-                  <td className="border border-gray-800 p-2"></td>
-                  <td className="border border-gray-800 p-2">Other Deductions</td>
-                  <td className="border border-gray-800 p-2 text-right font-semibold">
-                    {(employee.otherDeductions || 0).toLocaleString('en-IN')}
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    PF Amount
                   </td>
-                </tr>
-                <tr className="bg-gray-100">
-                  <td className="border border-gray-800 p-2 font-bold">GROSS EARNINGS</td>
-                  <td className="border border-gray-800 p-2 text-right font-bold">
-                    ₹{grossEarnings.toLocaleString('en-IN')}
+                  <td style={{ border: '1px solid #000', padding: '8px', fontWeight: 'bold' }}>
+                    ₹{(employee.providentFund || 0).toLocaleString('en-IN')}
                   </td>
-                  <td className="border border-gray-800 p-2 font-bold">TOTAL DEDUCTIONS</td>
-                  <td className="border border-gray-800 p-2 text-right font-bold">
-                    ₹{totalDeductions.toLocaleString('en-IN')}
+                  <td style={{ 
+                    border: '1px solid #000', 
+                    padding: '8px', 
+                    fontWeight: 'bold',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    Working Days
                   </td>
-                </tr>
-                <tr className="bg-green-50">
-                  <td className="border border-gray-800 p-2 font-bold" colSpan={3}>NET SALARY</td>
-                  <td className="border border-gray-800 p-2 text-right font-bold text-green-700">
-                    ₹{netSalary.toLocaleString('en-IN')}
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>
+                    {workingDays} / {actualWorkingDays} (Actual)
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            {/* Amount in Words */}
-            <div className="p-4 border-b border-gray-800 font-semibold">
-              <strong>Net Salary in Words:</strong> ₹{netSalaryInWords}
+            {/* Salary Details Table */}
+            <div style={{ padding: '1rem 0' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #000' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#e9ecef' }}>
+                    <th style={{ 
+                      border: '1px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'left',
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      EARNINGS
+                    </th>
+                    <th style={{ 
+                      border: '1px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      AMOUNT (₹)
+                    </th>
+                    <th style={{ 
+                      border: '1px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'left',
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      DEDUCTIONS
+                    </th>
+                    <th style={{ 
+                      border: '1px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      AMOUNT (₹)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.875rem' }}>
+                      Basic Salary
+                    </td>
+                    <td style={{ 
+                      border: '1px solid #000', 
+                      padding: '10px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {employee.basicSalary.toLocaleString('en-IN')}
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.875rem' }}>
+                      Provident Fund
+                    </td>
+                    <td style={{ 
+                      border: '1px solid #000', 
+                      padding: '10px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {(employee.providentFund || 0).toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ border: '1px solid #000', padding: '10px' }}></td>
+                    <td style={{ border: '1px solid #000', padding: '10px' }}></td>
+                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.875rem' }}>
+                      ESI
+                    </td>
+                    <td style={{ 
+                      border: '1px solid #000', 
+                      padding: '10px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {(employee.esi || 0).toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ border: '1px solid #000', padding: '10px' }}></td>
+                    <td style={{ border: '1px solid #000', padding: '10px' }}></td>
+                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.875rem' }}>
+                      Other Deductions
+                    </td>
+                    <td style={{ 
+                      border: '1px solid #000', 
+                      padding: '10px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {(employee.otherDeductions || 0).toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                  <tr style={{ backgroundColor: '#f8f9fa' }}>
+                    <td style={{ 
+                      border: '2px solid #000', 
+                      padding: '12px', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      GROSS EARNINGS
+                    </td>
+                    <td style={{ 
+                      border: '2px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {grossEarnings.toLocaleString('en-IN')}
+                    </td>
+                    <td style={{ 
+                      border: '2px solid #000', 
+                      padding: '12px', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      TOTAL DEDUCTIONS
+                    </td>
+                    <td style={{ 
+                      border: '2px solid #000', 
+                      padding: '12px', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem'
+                    }}>
+                      {totalDeductions.toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
+            {/* Net Salary Box */}
+            <div style={{ 
+              padding: '1.5rem', 
+              backgroundColor: '#e3f2fd', 
+              borderTop: '3px solid #000',
+              border: '2px solid #000',
+              margin: '1rem 0'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '1rem',
+                padding: '0.75rem',
+                backgroundColor: '#fff',
+                border: '1px solid #000',
+                borderRadius: '4px'
+              }}>
+                <span style={{ 
+                  fontSize: '1.125rem', 
+                  fontWeight: 'bold', 
+                  color: '#000' 
+                }}>
+                  NET SALARY
+                </span>
+                <span style={{ 
+                  fontSize: '1.25rem', 
+                  fontWeight: 'bold', 
+                  color: '#2e7d32',
+                  border: '2px solid #2e7d32',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px'
+                }}>
+                  ₹{netSalary.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div style={{ 
+                fontSize: '0.875rem', 
+                color: '#000',
+                fontWeight: '500',
+                padding: '0.5rem',
+                backgroundColor: '#fff',
+                border: '1px solid #000',
+                borderRadius: '4px'
+              }}>
+                <strong>Amount in words:</strong> {netSalaryInWords}
+              </div>
+            </div>
+
+            {/* Bank Details Box */}
+            {(employee.bankName || employee.accountNumber || employee.ifscCode) && (
+              <div style={{ 
+                padding: '1rem', 
+                borderTop: '2px solid #000', 
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #000',
+                margin: '1rem 0'
+              }}>
+                <h3 style={{ 
+                  fontWeight: 'bold', 
+                  marginBottom: '1rem', 
+                  color: '#000',
+                  fontSize: '1rem',
+                  textAlign: 'center',
+                  textDecoration: 'underline'
+                }}>
+                  BANK DETAILS
+                </h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ 
+                        border: '1px solid #000', 
+                        padding: '8px', 
+                        fontWeight: 'bold',
+                        backgroundColor: '#e9ecef',
+                        width: '33.33%'
+                      }}>
+                        Bank Name
+                      </td>
+                      <td style={{ 
+                        border: '1px solid #000', 
+                        padding: '8px',
+                        width: '66.67%'
+                      }}>
+                        {employee.bankName || 'Not specified'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ 
+                        border: '1px solid #000', 
+                        padding: '8px', 
+                        fontWeight: 'bold',
+                        backgroundColor: '#e9ecef'
+                      }}>
+                        Account Number
+                      </td>
+                      <td style={{ border: '1px solid #000', padding: '8px' }}>
+                        {employee.accountNumber || 'Not specified'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ 
+                        border: '1px solid #000', 
+                        padding: '8px', 
+                        fontWeight: 'bold',
+                        backgroundColor: '#e9ecef'
+                      }}>
+                        IFSC Code
+                      </td>
+                      <td style={{ border: '1px solid #000', padding: '8px' }}>
+                        {employee.ifscCode || 'Not specified'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* Footer */}
-            <div className="flex justify-between p-4">
-              <div>
-                <div className="font-semibold mb-2">Bank Details:</div>
-                <div className="text-sm">
-                  <div>Bank: {employee.bankName || 'Not provided'}</div>
-                  <div>Account: {employee.accountNumber || 'Not provided'}</div>
-                  <div>IFSC: {employee.ifscCode || 'Not provided'}</div>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="mb-8">Authorized Signatory</div>
-                <div className="border-t border-gray-800 w-48 pt-1">
-                  <div className="text-xs text-black">Signature</div>
-                </div>
-              </div>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '1rem', 
+              borderTop: '2px solid #000',
+              backgroundColor: '#f8f9fa',
+              fontSize: '0.75rem',
+              color: '#666'
+            }}>
+              <p style={{ margin: 0 }}>This is a system generated payslip</p>
             </div>
           </div>
         </div>

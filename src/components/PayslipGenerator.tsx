@@ -19,6 +19,10 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
   const [workingDays, setWorkingDays] = useState(30);
   const [actualWorkingDays, setActualWorkingDays] = useState(30);
   const [loading, setLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [previewEmployee, setPreviewEmployee] = useState<PayslipData | null>(null);
@@ -66,36 +70,86 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       return;
     }
 
-    setLoading(true);
+    setIsGenerating(true);
+    setGenerationProgress(0);
     setError(null);
+    setSuccess(null);
+
+    const generatedPayslips: PayslipData[] = [];
+    const totalEmployees = selectedEmployees.length;
 
     try {
-      const response = await fetch('/api/payslips/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          month: months[selectedMonth],
-          year: selectedYear,
-          workingDays,
-          actualWorkingDays,
-          employeeIds: selectedEmployees,
-        }),
-      });
+      let successCount = 0;
+      let failedEmployees: string[] = [];
 
-      const data = await response.json();
+      for (let i = 0; i < selectedEmployees.length; i++) {
+        const employeeId = selectedEmployees[i];
+        const employee = employees.find(emp => emp.employeeId === employeeId);
+        const employeeName = employee?.name || employeeId;
+        
+        // Update progress
+        const progress = Math.round(((i + 1) / totalEmployees) * 100);
+        setGenerationProgress(progress);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate payslips');
+        try {
+          // Generate payslip for individual employee
+          const response = await fetch('/api/payslips/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              month: months[selectedMonth],
+              year: selectedYear,
+              workingDays,
+              actualWorkingDays,
+              employeeIds: [employeeId], // Single employee
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || `Failed to generate payslip for employee ${employeeName}`);
+          }
+
+          // Add the generated payslip to our array
+          if (data.data && data.data.length > 0) {
+            generatedPayslips.push(...data.data);
+            successCount++;
+            
+            // Check if there were any failed employees in the API response
+            if (data.failedEmployees && data.failedEmployees.length > 0) {
+              failedEmployees.push(...data.failedEmployees);
+            }
+          } else {
+            throw new Error(`No payslip data returned for ${employeeName}`);
+          }
+        } catch (empError) {
+          console.error(`Failed to generate payslip for ${employeeName}:`, empError);
+          failedEmployees.push(employeeName);
+          // Continue with next employee instead of stopping
+        }
+
+        // Small delay to show progress visually
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      setPayslips(data.data);
-      setSuccess(`Successfully generated ${data.count} payslips`);
+      setPayslips(generatedPayslips);
+      
+      // Show appropriate success/error message
+      if (failedEmployees.length === 0) {
+        setSuccess(`Successfully generated ${successCount} payslips`);
+      } else if (successCount > 0) {
+        setSuccess(`Generated ${successCount} payslips. Failed for: ${failedEmployees.join(', ')}`);
+      } else {
+        setError(`Failed to generate payslips for all employees: ${failedEmployees.join(', ')}`);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred during payslip generation');
     } finally {
-      setLoading(false);
+      setIsGenerating(false);
+      setGenerationProgress(0);
     }
   };
 
@@ -134,6 +188,93 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download PDF');
+    }
+  };
+
+  const downloadAllPayslips = async () => {
+    // Get employees who have payslips generated
+    const employeesWithPayslips = employees.filter(emp => 
+      selectedEmployees.includes(emp.employeeId) && 
+      payslips.some(payslip => payslip.employee.employeeId === emp.employeeId)
+    );
+
+    if (employeesWithPayslips.length === 0) {
+      setError('No payslips available to download. Please generate payslips first.');
+      return;
+    }
+
+    setIsDownloading(true);
+    setDownloadProgress(0);
+    setError(null);
+    setSuccess(null);
+
+    const totalEmployees = employeesWithPayslips.length;
+    let successCount = 0;
+    let failedEmployees: string[] = [];
+
+    try {
+      for (let i = 0; i < employeesWithPayslips.length; i++) {
+        const employee = employeesWithPayslips[i];
+        
+        // Update progress
+        const progress = Math.round(((i + 1) / totalEmployees) * 100);
+        setDownloadProgress(progress);
+
+        try {
+          // Generate and download PDF for this employee
+          const response = await fetch('/api/payslips/pdf', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              employeeId: employee.employeeId,
+              month: months[selectedMonth],
+              year: selectedYear,
+              workingDays,
+              actualWorkingDays,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to generate PDF for ${employee.name}`);
+          }
+
+          const htmlContent = await response.text();
+          
+          // Create a new window with the payslip content
+          const printWindow = window.open('', '_blank');
+          if (printWindow) {
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            
+            // Trigger print dialog
+            printWindow.onload = () => {
+              printWindow.print();
+            };
+          }
+
+          successCount++;
+        } catch (err) {
+          console.error(`Failed to download payslip for ${employee.name}:`, err);
+          failedEmployees.push(employee.name);
+        }
+
+        // Small delay between downloads to prevent overwhelming the browser
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      // Show success/error message
+      if (failedEmployees.length === 0) {
+        setSuccess(`Successfully downloaded ${successCount} payslips`);
+      } else {
+        setError(`Downloaded ${successCount} payslips. Failed: ${failedEmployees.join(', ')}`);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during bulk download');
+    } finally {
+      setIsDownloading(false);
+      setDownloadProgress(0);
     }
   };
 
@@ -181,20 +322,21 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
             </div>
           )}
 
-          <div className="grid-3">
-            {/* Configuration Panel */}
-            <div>
-              <div className="config-panel">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <div style={{ background: '#dbeafe', padding: '0.375rem', borderRadius: '8px' }}>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#2563eb' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>Payroll Configuration</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {/* Payroll Configuration Section */}
+            <div className="config-panel">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: '#dbeafe', padding: '0.5rem', borderRadius: '8px' }}>
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#2563eb' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 </div>
-                
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>Payroll Configuration</h3>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                {/* Connection Status & Refresh */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {sheetInfo && (
                     <div className="status-connected" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -208,21 +350,20 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                     </div>
                   )}
                   
-                  <div className="flex gap-2">
-                    <button
-                      onClick={fetchEmployees}
-                      disabled={loading}
-                      className="flex-1 bg-gray-600 text-white px-3 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 text-sm"
-                    >
-                      {loading ? 'Loading...' : 'Refresh Data'}
-                    </button>
-                  </div>
+                  <button
+                    onClick={fetchEmployees}
+                    disabled={loading}
+                    className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 text-sm font-medium"
+                  >
+                    {loading ? 'Loading...' : 'Refresh Data'}
+                  </button>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                {/* Month & Year Selection */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div>
-                                          <label className="block text-sm font-medium text-black mb-1">
-                      Month
-                    </label>
+                      <label className="block text-sm font-medium text-black mb-1">Month</label>
                       <select
                         value={selectedMonth}
                         onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -237,9 +378,7 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                     </div>
 
                     <div>
-                                          <label className="block text-sm font-medium text-black mb-1">
-                      Year
-                    </label>
+                      <label className="block text-sm font-medium text-black mb-1">Year</label>
                       <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -253,12 +392,13 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                       </select>
                     </div>
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                {/* Working Days */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div>
-                                          <label className="block text-sm font-medium text-black mb-1">
-                      Working Days
-                    </label>
+                      <label className="block text-sm font-medium text-black mb-1">Working Days</label>
                       <input
                         type="number"
                         value={workingDays}
@@ -270,9 +410,7 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                     </div>
 
                     <div>
-                                          <label className="block text-sm font-medium text-black mb-1">
-                      Actual Days
-                    </label>
+                      <label className="block text-sm font-medium text-black mb-1">Actual Days</label>
                       <input
                         type="number"
                         value={actualWorkingDays}
@@ -283,25 +421,149 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                       />
                     </div>
                   </div>
+                </div>
 
+                {/* Progress Bar for Generation */}
+                {isGenerating && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+                        Generating Payslips...
+                      </span>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#2563eb' }}>
+                        {generationProgress}%
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '8px',
+                      backgroundColor: '#e5e7eb',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      boxShadow: 'inset 0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                    }}>
+                      <div
+                        style={{
+                          width: `${generationProgress}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)',
+                          borderRadius: '4px',
+                          transition: 'width 0.3s ease-in-out',
+                          boxShadow: '0 2px 4px 0 rgba(37, 99, 235, 0.3)'
+                        }}
+                      />
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      color: '#6b7280', 
+                      marginTop: '0.25rem',
+                      textAlign: 'center'
+                    }}>
+                      Processing {Math.ceil((generationProgress / 100) * selectedEmployees.length)} of {selectedEmployees.length} employees
+                    </div>
+                  </div>
+                )}
+
+                {/* Progress Bar for Download */}
+                {isDownloading && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+                        Downloading Payslips...
+                      </span>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#10b981' }}>
+                        {downloadProgress}%
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '8px',
+                      backgroundColor: '#e5e7eb',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      boxShadow: 'inset 0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                    }}>
+                      <div
+                        style={{
+                          width: `${downloadProgress}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
+                          borderRadius: '4px',
+                          transition: 'width 0.3s ease-in-out',
+                          boxShadow: '0 2px 4px 0 rgba(16, 185, 129, 0.3)'
+                        }}
+                      />
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      color: '#6b7280', 
+                      marginTop: '0.25rem',
+                      textAlign: 'center'
+                    }}>
+                      Downloading {Math.ceil((downloadProgress / 100) * employees.filter(emp => 
+                        selectedEmployees.includes(emp.employeeId) && 
+                        payslips.some(payslip => payslip.employee.employeeId === emp.employeeId)
+                      ).length)} of {employees.filter(emp => 
+                        selectedEmployees.includes(emp.employeeId) && 
+                        payslips.some(payslip => payslip.employee.employeeId === emp.employeeId)
+                      ).length} payslips
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {/* Generate Button */}
                   <button
                     onClick={generatePayslips}
-                    disabled={loading || selectedEmployees.length === 0}
+                    disabled={loading || isGenerating || isDownloading || selectedEmployees.length === 0}
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
                   >
-                    {loading ? (
+                    {isGenerating ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                        Generating... ({generationProgress}%)
+                      </>
+                    ) : loading ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                     ) : (
                       <FileText className="h-4 w-4" />
                     )}
-                    Generate Payslips
+                    {isGenerating ? `Generating Payslips` : 'Generate Payslips'}
+                  </button>
+
+                  {/* Download All Button */}
+                  <button
+                    onClick={downloadAllPayslips}
+                    disabled={
+                      loading || 
+                      isGenerating || 
+                      isDownloading || 
+                      selectedEmployees.length === 0 || 
+                      !payslips.some(payslip => selectedEmployees.includes(payslip.employee.employeeId))
+                    }
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  >
+                    {isDownloading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                        Downloading... ({downloadProgress}%)
+                      </>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        Download All Payslips
+                      </div>
+                    )}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Employee List */}
-            <div className="lg:col-span-2">
+            {/* Employees Section */}
+            <div>
               <EmployeeList
                 employees={employees}
                 selectedEmployees={selectedEmployees}

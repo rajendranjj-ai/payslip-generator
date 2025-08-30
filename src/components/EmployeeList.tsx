@@ -70,73 +70,310 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         </button>
       </div>
 
-      <div className="bg-white rounded-md border border-gray-200">
-        <div className="max-h-96 overflow-y-auto">
-          {employees.map((employee) => {
-            const isSelected = selectedEmployees.includes(employee.employeeId);
-            const payslip = getPayslipForEmployee(employee.employeeId);
-            const hasPayslip = !!payslip;
+      <div style={{ 
+        background: 'white', 
+        borderRadius: '8px', 
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'auto' }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse', 
+            fontSize: '14px'
+          }}>
+            <thead style={{ 
+              background: '#f9fafb', 
+              borderBottom: '2px solid #e5e7eb',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10
+            }}>
+              <tr>
+                <th style={{ 
+                  textAlign: 'left', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  width: '50px',
+                  minWidth: '50px'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedEmployees.length === employees.length && employees.length > 0}
+                    onChange={handleSelectAll}
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      accentColor: '#2563eb'
+                    }}
+                  />
+                </th>
+                <th style={{ 
+                  textAlign: 'left', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '200px'
+                }}>
+                  Employee Name
+                </th>
+                <th style={{ 
+                  textAlign: 'left', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '120px'
+                }}>
+                  Employee ID
+                </th>
+                <th style={{ 
+                  textAlign: 'left', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '150px'
+                }}>
+                  Designation
+                </th>
+                <th style={{ 
+                  textAlign: 'right', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '120px'
+                }}>
+                  ESI Amount
+                </th>
+                <th style={{ 
+                  textAlign: 'right', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '120px'
+                }}>
+                  Basic Salary
+                </th>
+                <th style={{ 
+                  textAlign: 'right', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '120px'
+                }}>
+                  Net Salary
+                </th>
+                <th style={{ 
+                  textAlign: 'center', 
+                  padding: '12px 16px', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  width: '100px',
+                  minWidth: '100px'
+                }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((employee, index) => {
+                // Create a unique identifier to prevent duplicate employee ID issues
+                const uniqueId = `${employee.id}-${employee.employeeId}`;
+                const isSelected = selectedEmployees.includes(employee.employeeId);
+                const payslip = getPayslipForEmployee(employee.employeeId);
+                const hasPayslip = !!payslip;
 
-            return (
-              <div
-                key={employee.employeeId}
-                className={`p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ${
-                  isSelected ? 'bg-blue-50 border-blue-200' : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleEmployeeToggle(employee.employeeId)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-black">{employee.name}</h4>
+                return (
+                  <tr
+                    key={uniqueId}
+                    style={{
+                      borderBottom: '1px solid #f3f4f6',
+                      background: isSelected ? '#eff6ff' : 'white',
+                      transition: 'background-color 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isSelected ? '#eff6ff' : 'white';
+                    }}
+                  >
+                    <td style={{ padding: '12px 16px' }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleEmployeeToggle(employee.employeeId);
+                        }}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          accentColor: '#2563eb'
+                        }}
+                      />
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: '500', color: '#111827' }}>
+                          {employee.name}
+                        </span>
                         {hasPayslip && (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <CheckCircle2 
+                            style={{ 
+                              width: '16px', 
+                              height: '16px', 
+                              color: '#10b981',
+                              flexShrink: 0
+                            }} 
+                          />
                         )}
                       </div>
-                      <div className="text-sm text-black">
-                        {employee.employeeId} • {employee.designation} • {employee.department}
-                      </div>
-                      <div className="text-xs text-black">
-                        Basic: ₹{employee.basicSalary.toLocaleString('en-IN')}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {hasPayslip && payslip && (
-                      <>
-                        <button
-                          onClick={() => onPreview(payslip)}
-                          className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-                          title="Preview Payslip"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => onDownloadPDF(employee)}
-                          className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors"
-                          title="Download PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                      </>
-                    )}
-                    {hasPayslip && payslip && (
-                      <div className="text-xs text-green-600 font-medium">
-                        Net: ₹{payslip.netSalary.toLocaleString('en-IN')}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      color: '#374151',
+                      fontFamily: 'monospace',
+                      fontWeight: '500'
+                    }}>
+                      {employee.employeeId}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      color: '#374151'
+                    }}>
+                      {employee.designation || 'N/A'}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      color: '#374151',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      ₹{(employee.esi || 0).toLocaleString('en-IN')}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      color: '#374151',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      ₹{employee.basicSalary.toLocaleString('en-IN')}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px', 
+                      fontSize: '13px',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}>
+                      {hasPayslip && payslip ? (
+                        <span style={{ color: '#10b981' }}>
+                          ₹{payslip.netSalary.toLocaleString('en-IN')}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#9ca3af' }}>-</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                      {hasPayslip && payslip && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onPreview(payslip);
+                            }}
+                            style={{
+                              padding: '6px',
+                              color: '#2563eb',
+                              background: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#dbeafe';
+                              e.currentTarget.style.color = '#1d4ed8';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#2563eb';
+                            }}
+                            title="Preview Payslip"
+                          >
+                            <Eye style={{ width: '16px', height: '16px' }} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDownloadPDF(employee);
+                            }}
+                            style={{
+                              padding: '6px',
+                              color: '#059669',
+                              background: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#d1fae5';
+                              e.currentTarget.style.color = '#047857';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#059669';
+                            }}
+                            title="Download PDF"
+                          >
+                            <Download style={{ width: '16px', height: '16px' }} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 

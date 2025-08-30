@@ -71,36 +71,42 @@ export class GoogleSheetsService {
           return isNaN(num) ? 0 : num;
         };
 
-        // Helper function to get value by header name or column index
-        const getValue = (headerName: string, fallbackIndex: number) => {
-          const headerIndex = headers.findIndex((h: string) => 
-            h && h.toLowerCase().includes(headerName.toLowerCase())
-          );
-          return row[headerIndex !== -1 ? headerIndex : fallbackIndex] || '';
-        };
+        // Direct column mapping based on known Google Sheet structure
+
+        // ALWAYS generate unique employee ID based on name + row index
+        // This prevents duplicate IDs when Google Sheet has job titles instead of unique IDs
+        const name = row[0] || 'Unknown';
+        const namePrefix = name.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+        const uniqueEmployeeId = `${namePrefix}${String(index + 1).padStart(3, '0')}`;
+        
+        // Use explicit column indices based on the known header structure
+        // Headers: Name(0), Designation(1), Email(2), Phone(3), Date(4), Basic(5), ESI(6), PF(7), Bank(8), Account(9), IFSC(10)
+        const esiValue = row[6] || '0';  // ESI column is at index 6
+        const pfValue = row[7] || '0';   // PF column is at index 7
 
         return {
           id: (index + 1).toString(),
-          name: getValue('name', 0) || `Employee ${index + 1}`,
-          employeeId: getValue('id', 1) || getValue('employee', 1) || `EMP${String(index + 1).padStart(3, '0')}`,
-          designation: getValue('designation', 2) || getValue('title', 2),
-          department: getValue('department', 3) || getValue('dept', 3),
-          email: getValue('email', 4),
-          phone: getValue('phone', 5) || getValue('mobile', 5),
-          dateOfJoining: getValue('joining', 6) || getValue('date', 6),
-          basicSalary: parseNumber(getValue('basic', 7) || getValue('salary', 7) || row[7]),
-          hra: parseNumber(getValue('hra', 8) || getValue('house', 8)),
-          da: parseNumber(getValue('da', 9) || getValue('dearness', 9)),
-          conveyanceAllowance: parseNumber(getValue('conveyance', 10) || getValue('transport', 10)),
-          medicalAllowance: parseNumber(getValue('medical', 11) || getValue('health', 11)),
-          specialAllowance: parseNumber(getValue('special', 12) || getValue('other', 12)),
-          providentFund: parseNumber(getValue('pf', 13) || getValue('provident', 13)),
-          professionalTax: parseNumber(getValue('pt', 14) || getValue('professional', 14)),
-          incomeTax: parseNumber(getValue('tax', 15) || getValue('income', 15)),
-          otherDeductions: parseNumber(getValue('deduction', 16) || getValue('other', 16)),
-          bankName: getValue('bank', 17),
-          accountNumber: getValue('account', 18) || getValue('number', 18),
-          ifscCode: getValue('ifsc', 19) || getValue('code', 19),
+          name: row[0] || `Employee ${index + 1}`,
+          employeeId: uniqueEmployeeId,
+          designation: row[1] || 'N/A',
+          department: 'N/A', // Not in current sheet structure
+          email: row[2] || '',
+          phone: row[3] || '',
+          dateOfJoining: row[4] || '',
+          basicSalary: parseNumber(row[5]),
+          hra: 0, // Not in current sheet structure
+          da: 0, // Not in current sheet structure
+          conveyanceAllowance: 0, // Not in current sheet structure
+          medicalAllowance: 0, // Not in current sheet structure
+          specialAllowance: 0, // Not in current sheet structure
+          providentFund: parseNumber(pfValue),
+          professionalTax: 0, // Not in current sheet structure
+          incomeTax: 0, // Not in current sheet structure
+          esi: parseNumber(esiValue),
+          otherDeductions: 0, // Not in current sheet structure
+          bankName: row[8] || '',
+          accountNumber: row[9] || '',
+          ifscCode: row[10] || '',
         };
       });
     } catch (error) {

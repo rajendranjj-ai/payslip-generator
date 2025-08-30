@@ -51,21 +51,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate payslips
-    const payslips = targetEmployees.map(employee => {
-      return PayslipCalculator.calculatePayslip(
-        employee,
-        month,
-        year,
-        workingDays,
-        actualWorkingDays
-      );
-    });
+    // Generate payslips with individual error handling
+    const payslips = [];
+    const failedEmployees = [];
+
+    for (const employee of targetEmployees) {
+      try {
+        const payslip = PayslipCalculator.calculatePayslip(
+          employee,
+          month,
+          year,
+          workingDays,
+          actualWorkingDays
+        );
+        
+        // Validate the payslip data
+        if (isNaN(payslip.grossEarnings) || isNaN(payslip.netSalary) || isNaN(payslip.totalDeductions)) {
+          throw new Error(`Invalid calculations for employee ${employee.name}`);
+        }
+        
+        payslips.push(payslip);
+      } catch (error) {
+        console.error(`Failed to generate payslip for employee ${employee.name}:`, error);
+        failedEmployees.push(employee.name);
+      }
+    }
+
+    // Return results even if some failed
+    if (payslips.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: `Failed to generate payslips for all employees: ${failedEmployees.join(', ')}`,
+        failedEmployees
+      }, { status: 400 });
+    }
 
     return NextResponse.json({
       success: true,
       data: payslips,
       count: payslips.length,
+      failedEmployees: failedEmployees.length > 0 ? failedEmployees : undefined,
       summary: {
         totalGrossEarnings: payslips.reduce((sum, p) => sum + p.grossEarnings, 0),
         totalDeductions: payslips.reduce((sum, p) => sum + p.totalDeductions, 0),
