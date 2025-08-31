@@ -208,70 +208,70 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
     setError(null);
     setSuccess(null);
 
-    const totalEmployees = employeesWithPayslips.length;
-    let successCount = 0;
-    let failedEmployees: string[] = [];
-
     try {
-      for (let i = 0; i < employeesWithPayslips.length; i++) {
-        const employee = employeesWithPayslips[i];
+      // Show initial progress
+      setDownloadProgress(25);
+
+      // Get employee IDs for bulk generation
+      const employeeIds = employeesWithPayslips.map(emp => emp.employeeId);
+      
+      // Generate bulk PDF using the new API endpoint
+      const response = await fetch('/api/payslips/bulk-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          employeeIds,
+          month: months[selectedMonth],
+          year: selectedYear,
+          workingDays,
+          actualWorkingDays,
+        }),
+      });
+
+      setDownloadProgress(75);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate bulk payslips');
+      }
+
+      const htmlContent = await response.text();
+      const generatedCount = response.headers.get('X-Generated-Count') || employeesWithPayslips.length;
+      const failedCount = response.headers.get('X-Failed-Count') || '0';
+      
+      setDownloadProgress(90);
+
+      // Create a new window with all payslips in a single document
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
         
-        // Update progress
-        const progress = Math.round(((i + 1) / totalEmployees) * 100);
-        setDownloadProgress(progress);
-
-        try {
-          // Generate and download PDF for this employee
-          const response = await fetch('/api/payslips/pdf', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              employeeId: employee.employeeId,
-              month: months[selectedMonth],
-              year: selectedYear,
-              workingDays,
-              actualWorkingDays,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to generate PDF for ${employee.name}`);
-          }
-
-          const htmlContent = await response.text();
-          
-          // Create a new window with the payslip content
-          const printWindow = window.open('', '_blank');
-          if (printWindow) {
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            
-            // Trigger print dialog
-            printWindow.onload = () => {
-              printWindow.print();
-            };
-          }
-
-          successCount++;
-        } catch (err) {
-          console.error(`Failed to download payslip for ${employee.name}:`, err);
-          failedEmployees.push(employee.name);
-        }
-
-        // Small delay between downloads to prevent overwhelming the browser
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      // Show success/error message
-      if (failedEmployees.length === 0) {
-        setSuccess(`Successfully downloaded ${successCount} payslips`);
+        // Trigger print dialog once content is loaded
+        printWindow.onload = () => {
+          printWindow.print();
+        };
       } else {
-        setError(`Downloaded ${successCount} payslips. Failed: ${failedEmployees.join(', ')}`);
+        throw new Error('Unable to open print window. Please check your popup blocker settings.');
       }
+
+      setDownloadProgress(100);
+
+      // Show success message with counts
+      if (parseInt(failedCount) === 0) {
+        setSuccess(`Successfully generated single PDF with ${generatedCount} payslips`);
+      } else {
+        setError(`Generated PDF with ${generatedCount} payslips. ${failedCount} employees failed to process.`);
+      }
+
+      // Brief delay to show completion
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during bulk download');
+      console.error('Bulk payslip download error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred during bulk PDF generation');
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
@@ -547,14 +547,14 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                     {isDownloading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                        Downloading... ({downloadProgress}%)
+                        Generating PDF... ({downloadProgress}%)
                       </>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                         </svg>
-                        Download All Payslips
+                        Download All as Single PDF
                       </div>
                     )}
                   </button>
