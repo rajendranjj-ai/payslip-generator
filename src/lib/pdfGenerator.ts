@@ -391,7 +391,7 @@ export class PayslipPDFGenerator {
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Payslips - ${payslipDataArray[0].month} ${payslipDataArray[0].year}</title>
+        <title>Payslips - ${payslipDataArray[0]?.month || 'Unknown'} ${payslipDataArray[0]?.year || 'Unknown'}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -517,7 +517,7 @@ export class PayslipPDFGenerator {
         </style>
       </head>
       <body>
-        ${payslipContents.join('\n')}
+        ${payslipContents}
       </body>
       </html>
     `;
