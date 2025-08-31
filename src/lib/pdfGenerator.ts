@@ -376,143 +376,6 @@ export class PayslipPDFGenerator {
           </div>
         </div>
       `;
-    }).join('\n');
-
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Payslips - ${payslipDataArray[0].month} ${payslipDataArray[0].year}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 0;
-            padding: 20px;
-            background: white;
-            color: black;
-          }
-          .payslip-container {
-            max-width: 800px;
-            margin: 0 auto 40px auto;
-            border: 2px solid #000;
-            padding: 0;
-          }
-          .payslip-container.page-break {
-            page-break-before: always;
-            margin-top: 0;
-          }
-          .header {
-            text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid #000;
-            background-color: #f8f9fa;
-          }
-          .company-name {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-          }
-          .company-address {
-            font-size: 14px;
-            margin-bottom: 15px;
-          }
-          .payslip-title {
-            font-size: 18px;
-            font-weight: bold;
-            text-decoration: underline;
-          }
-          .employee-info {
-            display: flex;
-            padding: 15px;
-            border-bottom: 1px solid #000;
-          }
-          .employee-left, .employee-right {
-            flex: 1;
-          }
-          .info-row {
-            margin-bottom: 8px;
-          }
-          .label {
-            font-weight: bold;
-            display: inline-block;
-            width: 150px;
-          }
-          .salary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0;
-          }
-          .salary-table th, .salary-table td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: left;
-          }
-          .salary-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            text-align: center;
-          }
-          .earnings-section, .deductions-section {
-            width: 50%;
-            vertical-align: top;
-          }
-          .amount {
-            text-align: right;
-            font-weight: bold;
-          }
-          .total-row {
-            font-weight: bold;
-            background-color: #e9ecef;
-          }
-          .net-salary {
-            background-color: #d4edda;
-            font-weight: bold;
-            font-size: 14px;
-          }
-          .amount-in-words {
-            padding: 15px;
-            border-top: 1px solid #000;
-            font-weight: bold;
-          }
-          .footer {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            border-top: 1px solid #000;
-          }
-          .signature-section {
-            text-align: center;
-            margin-top: 30px;
-          }
-          .signature-line {
-            border-top: 1px solid #000;
-            width: 200px;
-            margin: 0 auto;
-            padding-top: 5px;
-          }
-          
-          /* Print-specific styles */
-          @media print {
-            body {
-              padding: 0;
-            }
-            .payslip-container {
-              margin-bottom: 0;
-              page-break-after: always;
-            }
-            .payslip-container:last-child {
-              page-break-after: avoid;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${payslipContents.join('\n')}
-      </body>
-      </html>
-    `;
         } catch (error) {
           console.error(`Error in individual payslip ${index + 1}:`, error);
           return `<div style="border: 2px solid red; padding: 20px; margin: 20px; text-align: center;">
@@ -521,14 +384,14 @@ export class PayslipPDFGenerator {
             <p style="color: red;">Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>
           </div>`;
         }
-      });
+      }).join('\n');
 
-      return `
+    return `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Payslips - ${payslipDataArray[0]?.month || 'Unknown'} ${payslipDataArray[0]?.year || 'Unknown'}</title>
+        <title>Payslips - ${payslipDataArray[0].month} ${payslipDataArray[0].year}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
