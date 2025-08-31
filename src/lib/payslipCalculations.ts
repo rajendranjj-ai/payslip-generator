@@ -9,25 +9,41 @@ export class PayslipCalculator {
     workingDays: number = 30, 
     actualWorkingDays: number = 30
   ): PayslipData {
+    // Input validation and sanitization
+    const safeBasicSalary = Number(employee.basicSalary) || 0;
+    const safeWorkingDays = Math.max(Number(workingDays) || 1, 1); // Prevent division by zero
+    const safeActualWorkingDays = Math.max(Number(actualWorkingDays) || 1, 0);
+    const safePF = Number(employee.providentFund) || 0;
+    const safeESI = Number(employee.esi) || 0;
+    const safeOtherDeductions = Number(employee.otherDeductions) || 0;
+
     // Calculate pro-rated salary based on actual working days
-    const salaryRatio = actualWorkingDays / workingDays;
+    const salaryRatio = safeActualWorkingDays / safeWorkingDays;
+
+    // Validate salary ratio
+    if (!isFinite(salaryRatio) || salaryRatio < 0) {
+      throw new Error(`Invalid salary ratio calculated: ${salaryRatio} (Working Days: ${safeWorkingDays}, Actual: ${safeActualWorkingDays})`);
+    }
 
     // Earnings - handle missing fields gracefully
-    const basicSalary = employee.basicSalary * salaryRatio;
-    // Remove: HRA from earnings
+    const basicSalary = safeBasicSalary * salaryRatio;
     
     const grossEarnings = basicSalary;
 
     // Deductions - handle missing fields gracefully
-    const providentFund = (employee.providentFund || 0) * salaryRatio;
-    // Remove: Professional Tax and Income Tax
-    const esi = (employee.esi || 0) * salaryRatio; // Add ESI
-    const otherDeductions = (employee.otherDeductions || 0) * salaryRatio;
+    const providentFund = safePF * salaryRatio;
+    const esi = safeESI * salaryRatio;
+    const otherDeductions = safeOtherDeductions * salaryRatio;
 
     const totalDeductions = providentFund + esi + otherDeductions;
 
     // Net Salary
     const netSalary = grossEarnings - totalDeductions;
+
+    // Final validation
+    if (!isFinite(grossEarnings) || !isFinite(totalDeductions) || !isFinite(netSalary)) {
+      throw new Error(`Invalid calculation results: Gross=${grossEarnings}, Deductions=${totalDeductions}, Net=${netSalary}`);
+    }
 
       return {
     employee: {

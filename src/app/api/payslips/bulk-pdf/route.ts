@@ -48,6 +48,29 @@ export async function POST(request: NextRequest) {
 
     for (const employee of selectedEmployees) {
       try {
+        // Pre-validate employee data
+        const validationErrors = [];
+        
+        if (!employee.name || employee.name.trim() === '') {
+          validationErrors.push('Missing employee name');
+        }
+        
+        if (!employee.basicSalary || isNaN(employee.basicSalary) || employee.basicSalary <= 0) {
+          validationErrors.push(`Invalid basic salary: ${employee.basicSalary}`);
+        }
+        
+        if (workingDays <= 0 || isNaN(workingDays)) {
+          validationErrors.push(`Invalid working days: ${workingDays}`);
+        }
+        
+        if (actualWorkingDays <= 0 || isNaN(actualWorkingDays)) {
+          validationErrors.push(`Invalid actual working days: ${actualWorkingDays}`);
+        }
+
+        if (validationErrors.length > 0) {
+          throw new Error(`Employee ${employee.name || 'Unknown'} validation failed: ${validationErrors.join(', ')}`);
+        }
+
         const payslipData = PayslipCalculator.calculatePayslip(
           employee,
           month,
@@ -56,15 +79,37 @@ export async function POST(request: NextRequest) {
           actualWorkingDays
         );
 
-        // Validate the payslip data
-        if (isNaN(payslipData.grossEarnings) || isNaN(payslipData.netSalary) || isNaN(payslipData.totalDeductions)) {
-          throw new Error(`Invalid calculations for employee ${employee.name}`);
+        // Validate the calculated payslip data with detailed error reporting
+        if (isNaN(payslipData.grossEarnings)) {
+          throw new Error(`Invalid gross earnings calculation for ${employee.name}: ${payslipData.grossEarnings} (Basic: ${employee.basicSalary})`);
+        }
+        
+        if (isNaN(payslipData.netSalary)) {
+          throw new Error(`Invalid net salary calculation for ${employee.name}: ${payslipData.netSalary} (Gross: ${payslipData.grossEarnings}, Deductions: ${payslipData.totalDeductions})`);
+        }
+        
+        if (isNaN(payslipData.totalDeductions)) {
+          throw new Error(`Invalid total deductions calculation for ${employee.name}: ${payslipData.totalDeductions} (PF: ${employee.providentFund}, ESI: ${employee.esi})`);
+        }
+
+        // Additional sanity checks
+        if (payslipData.netSalary < 0) {
+          console.warn(`Warning: Negative net salary for ${employee.name}: ${payslipData.netSalary}`);
         }
 
         payslipDataArray.push(payslipData);
       } catch (error) {
-        console.error(`Failed to generate payslip for employee ${employee.name}:`, error);
-        failedEmployees.push(employee.name);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Failed to generate payslip for employee ${employee.name}:`, errorMessage);
+        console.error('Employee data:', JSON.stringify({
+          name: employee.name,
+          employeeId: employee.employeeId,
+          basicSalary: employee.basicSalary,
+          providentFund: employee.providentFund,
+          esi: employee.esi,
+          otherDeductions: employee.otherDeductions
+        }, null, 2));
+        failedEmployees.push(`${employee.name} (${errorMessage})`);
       }
     }
 

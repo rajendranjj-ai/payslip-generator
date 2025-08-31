@@ -141,9 +141,43 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       if (failedEmployees.length === 0) {
         setSuccess(`Successfully generated ${successCount} payslips`);
       } else if (successCount > 0) {
-        setSuccess(`Generated ${successCount} payslips. Failed for: ${failedEmployees.join(', ')}`);
+        const totalSelected = selectedEmployees.length;
+        const failedCount = failedEmployees.length;
+        
+        // Show summary with limited employee names to avoid overwhelming the UI
+        const shortFailedList = failedEmployees.slice(0, 3).join(', ');
+        const moreFailures = failedCount > 3 ? ` and ${failedCount - 3} others` : '';
+        
+        setSuccess(
+          `Generated ${successCount}/${totalSelected} payslips successfully. ` +
+          `Failed for ${failedCount} employees: ${shortFailedList}${moreFailures}. ` +
+          `Check browser console for detailed error information.`
+        );
+        
+        // Log detailed failure information to console for debugging
+        console.group('Payslip Generation Failures');
+        console.log(`Total selected: ${totalSelected}, Success: ${successCount}, Failed: ${failedCount}`);
+        failedEmployees.forEach((failure: string, index: number) => {
+          console.error(`${index + 1}. ${failure}`);
+        });
+        console.log('Suggestion: Check Google Sheets for missing or invalid data (Basic Salary, ESI, PF values)');
+        console.groupEnd();
       } else {
-        setError(`Failed to generate payslips for all employees: ${failedEmployees.join(', ')}`);
+        const failedCount = failedEmployees.length;
+        const shortFailedList = failedEmployees.slice(0, 5).join(', ');
+        const moreFailures = failedCount > 5 ? ` and ${failedCount - 5} others` : '';
+        
+        setError(
+          `Failed to generate payslips for all ${failedCount} employees: ${shortFailedList}${moreFailures}. ` +
+          `Check browser console and Google Sheets data for errors.`
+        );
+        
+        // Log all failures for debugging
+        console.group('All Payslip Generation Failures');
+        failedEmployees.forEach((failure: string, index: number) => {
+          console.error(`${index + 1}. ${failure}`);
+        });
+        console.groupEnd();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during payslip generation');
