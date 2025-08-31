@@ -70,10 +70,23 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       return;
     }
 
+    // Prevent concurrent generation attempts
+    if (isGenerating) {
+      console.warn('⚠️ Generation already in progress, ignoring duplicate request');
+      return;
+    }
+
     setIsGenerating(true);
     setGenerationProgress(0);
     setError(null);
     setSuccess(null);
+
+    const generationStartTime = Date.now();
+    const generationId = `gen_${generationStartTime}`;
+    console.group(`🚀 Starting Payslip Generation - ID: ${generationId}`);
+    console.log(`📊 Employees selected: ${selectedEmployees.length}`);
+    console.log(`📅 Period: ${months[selectedMonth]} ${selectedYear}`);
+    console.log(`📋 Working Days: ${workingDays}/${actualWorkingDays}`);
 
     const generatedPayslips: PayslipData[] = [];
     const totalEmployees = selectedEmployees.length;
@@ -82,6 +95,9 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       let successCount = 0;
       let failedEmployees: string[] = [];
       let processedCount = 0;
+      let apiErrorCount = 0;
+      let validationErrorCount = 0;
+      let calculationErrorCount = 0;
 
       for (let i = 0; i < selectedEmployees.length; i++) {
         const employeeId = selectedEmployees[i];
@@ -92,53 +108,116 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
         const startProgress = Math.round((processedCount / totalEmployees) * 90); // Reserve 10% for final validation
         setGenerationProgress(startProgress);
 
-        try {
-          // Generate payslip for individual employee
-          const response = await fetch('/api/payslips/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              month: months[selectedMonth],
-              year: selectedYear,
-              workingDays,
-              actualWorkingDays,
-              employeeIds: [employeeId], // Single employee
-            }),
-          });
+        console.log(`🔄 Processing employee ${i + 1}/${totalEmployees}: ${employeeName} (ID: ${employeeId})`);
 
-          const data = await response.json();
+        // Retry mechanism for API stability
+        let attempts = 0;
+        const maxRetries = 3;
+        let lastError: Error | null = null;
 
-          if (!response.ok) {
-            throw new Error(data.error || `Failed to generate payslip for employee ${employeeName}`);
-          }
-
-          // Validate the response data more thoroughly
-          if (data.success && data.data && data.data.length > 0) {
-            // Additional validation: check if payslip data is complete
-            const payslipData = data.data[0];
-            if (payslipData && payslipData.employee && payslipData.netSalary !== undefined) {
-              generatedPayslips.push(...data.data);
-              successCount++;
-              console.log(`✅ Successfully generated payslip for ${employeeName} (Net: ₹${payslipData.netSalary})`);
-            } else {
-              throw new Error(`Incomplete payslip data for ${employeeName}`);
+        while (attempts < maxRetries) {
+          attempts++;
+          try {
+            // Add delay between requests to avoid overwhelming the API
+            if (i > 0) {
+              await new Promise(resolve => setTimeout(resolve, 250 + (attempts - 1) * 100)); // Progressive delay on retries
             }
+
+            console.log(`   📡 API call attempt ${attempts}/${maxRetries} for ${employeeName}`);
             
-            // Check if there were any failed employees in the API response
-            if (data.failedEmployees && data.failedEmployees.length > 0) {
-              failedEmployees.push(...data.failedEmployees);
-              console.warn(`⚠️ API reported failures for: ${data.failedEmployees.join(', ')}`);
+            // Generate payslip for individual employee
+            const requestStartTime = Date.now();
+            const response = await fetch('/api/payslips/generate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Generation-ID': generationId,
+                'X-Employee-Index': i.toString(),
+                'X-Retry-Attempt': attempts.toString(),
+              },
+              body: JSON.stringify({
+                month: months[selectedMonth],
+                year: selectedYear,
+                workingDays,
+                actualWorkingDays,
+                employeeIds: [employeeId], // Single employee
+              }),
+            });
+
+            const requestDuration = Date.now() - requestStartTime;
+            console.log(`   ⏱️ API request took ${requestDuration}ms`);
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              let errorData;
+              try {
+                errorData = JSON.parse(errorText);
+              } catch {
+                errorData = { error: errorText };
+              }
+              
+              const apiError = new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+              apiError.name = 'APIError';
+              throw apiError;
             }
-          } else {
-            throw new Error(`Invalid response format or no payslip data returned for ${employeeName}`);
+
+            const data = await response.json();
+            console.log(`   ✅ API response received successfully for ${employeeName}`);
+
+            // Validate the response data more thoroughly
+            if (data.success && data.data && data.data.length > 0) {
+              // Additional validation: check if payslip data is complete
+              const payslipData = data.data[0];
+              if (payslipData && payslipData.employee && payslipData.netSalary !== undefined) {
+                generatedPayslips.push(...data.data);
+                successCount++;
+                console.log(`   💰 Payslip generated: ${employeeName} (Net: ₹${payslipData.netSalary})`);
+                
+                // Break out of retry loop on success
+                break;
+              } else {
+                const validationError = new Error(`Incomplete payslip data for ${employeeName} - missing required fields`);
+                validationError.name = 'ValidationError';
+                throw validationError;
+              }
+              
+              // Check if there were any failed employees in the API response
+              if (data.failedEmployees && data.failedEmployees.length > 0) {
+                failedEmployees.push(...data.failedEmployees);
+                console.warn(`   ⚠️ API reported failures for: ${data.failedEmployees.join(', ')}`);
+              }
+            } else {
+              const validationError = new Error(`Invalid response format or no payslip data returned for ${employeeName}`);
+              validationError.name = 'ValidationError';
+              throw validationError;
+            }
+
+          } catch (empError: any) {
+            lastError = empError;
+            
+            // Categorize error types
+            if (empError.name === 'APIError') {
+              console.warn(`   ⚠️ API error for ${employeeName} (attempt ${attempts}/${maxRetries}): ${empError.message}`);
+              apiErrorCount++;
+            } else if (empError.name === 'ValidationError') {
+              console.warn(`   ⚠️ Validation error for ${employeeName} (attempt ${attempts}/${maxRetries}): ${empError.message}`);
+              validationErrorCount++;
+            } else {
+              console.warn(`   ⚠️ Calculation error for ${employeeName} (attempt ${attempts}/${maxRetries}): ${empError.message}`);
+              calculationErrorCount++;
+            }
+
+            // If this was the last attempt, we'll exit the retry loop
+            if (attempts >= maxRetries) {
+              console.error(`   ❌ All ${maxRetries} attempts failed for ${employeeName}: ${lastError?.message}`);
+              failedEmployees.push(`${employeeName} (${lastError?.name}: ${lastError?.message})`);
+            } else {
+              console.log(`   🔄 Retrying in ${250 + (attempts) * 100}ms...`);
+            }
           }
-        } catch (empError) {
-          console.error(`❌ Failed to generate payslip for ${employeeName}:`, empError);
-          failedEmployees.push(employeeName);
-          // Continue with next employee instead of stopping
         }
+
+        // Continue with next employee regardless of success/failure
 
         // Update progress based on completed processing (success or failure)
         processedCount++;
@@ -146,9 +225,11 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
         setGenerationProgress(completedProgress);
 
         // Small delay to show progress visually and prevent overwhelming the server
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // No additional delay needed since we already have delays in the retry mechanism
       }
 
+      console.log(`📊 Processing complete - starting final validation...`);
+      
       // Final validation and progress completion
       setGenerationProgress(95);
       
@@ -159,51 +240,79 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       );
       
       if (validPayslips.length !== generatedPayslips.length) {
-        console.warn(`⚠️ Found ${generatedPayslips.length - validPayslips.length} invalid payslips, filtering them out`);
+        console.warn(`⚠️ Found ${generatedPayslips.length - validPayslips.length} invalid payslips during final validation, filtering them out`);
       }
 
       setPayslips(validPayslips);
       setGenerationProgress(100);
+
+      const generationDuration = Date.now() - generationStartTime;
+      console.log(`⏱️ Total generation time: ${generationDuration}ms (${(generationDuration / 1000).toFixed(1)}s)`);
       
       // Show appropriate success/error message with accurate counts
       const totalSelected = selectedEmployees.length;
       const actualSuccessCount = validPayslips.length; // Use validated payslips count
       const failedCount = failedEmployees.length;
+      const successRate = Math.round(actualSuccessCount/totalSelected*100);
       
-      if (failedCount === 0 && actualSuccessCount === totalSelected) {
-        setSuccess(`✅ Successfully generated all ${actualSuccessCount} payslips!`);
-        console.log(`🎉 Perfect! All ${actualSuccessCount} payslips generated successfully.`);
-      } else if (actualSuccessCount > 0) {
-        // Show detailed success/failure breakdown
-        const shortFailedList = failedEmployees.slice(0, 3).join(', ');
-        const moreFailures = failedCount > 3 ? ` and ${failedCount - 3} others` : '';
+      // Enhanced diagnostic summary
+      console.group(`📊 Generation Summary - ID: ${generationId}`);
+      console.log(`📈 Overall Results:`);
+      console.log(`   📋 Total selected: ${totalSelected}`);
+      console.log(`   ✅ Successful: ${actualSuccessCount} (${successRate}%)`);
+      console.log(`   ❌ Failed: ${failedCount} (${Math.round(failedCount/totalSelected*100)}%)`);
+      console.log(`   ⏱️ Duration: ${(generationDuration / 1000).toFixed(1)}s`);
+      console.log(`   📊 Average time per employee: ${Math.round(generationDuration / totalSelected)}ms`);
+      
+      if (failedCount > 0) {
+        console.group(`🔍 Error Analysis:`);
+        console.log(`   🌐 API Errors: ${apiErrorCount} (network/server issues)`);
+        console.log(`   ✅ Validation Errors: ${validationErrorCount} (data format issues)`);
+        console.log(`   🔢 Calculation Errors: ${calculationErrorCount} (math/logic issues)`);
         
-        if (actualSuccessCount >= totalSelected * 0.8) { // 80% or more success
-          setSuccess(
-            `✅ Generated ${actualSuccessCount}/${totalSelected} payslips successfully. ` +
-            `⚠️ Failed for ${failedCount} employees: ${shortFailedList}${moreFailures}. ` +
-            `Check browser console for detailed error information.`
-          );
-        } else { // Less than 80% success - treat as error
-          setError(
-            `⚠️ Only generated ${actualSuccessCount}/${totalSelected} payslips successfully. ` +
-            `❌ Failed for ${failedCount} employees: ${shortFailedList}${moreFailures}. ` +
-            `Check browser console and Google Sheets data for errors.`
-          );
+        if (apiErrorCount > validationErrorCount + calculationErrorCount) {
+          console.warn(`   🚨 DIAGNOSIS: High API error rate suggests network/server instability`);
+          console.log(`   💡 SUGGESTION: Check internet connection and server status`);
+        } else if (validationErrorCount > apiErrorCount + calculationErrorCount) {
+          console.warn(`   🚨 DIAGNOSIS: High validation error rate suggests data quality issues`);
+          console.log(`   💡 SUGGESTION: Check Google Sheets for missing/invalid data`);
+        } else if (calculationErrorCount > apiErrorCount + validationErrorCount) {
+          console.warn(`   🚨 DIAGNOSIS: High calculation error rate suggests data value issues`);
+          console.log(`   💡 SUGGESTION: Check for extreme values or formula errors in spreadsheet`);
+        } else {
+          console.log(`   📊 Mixed error types - check individual failures below`);
         }
+        console.groupEnd();
         
-        // Log detailed failure information to console for debugging
-        console.group('📊 Payslip Generation Summary');
-        console.log(`Total selected: ${totalSelected}`);
-        console.log(`✅ Success: ${actualSuccessCount} (${Math.round(actualSuccessCount/totalSelected*100)}%)`);
-        console.log(`❌ Failed: ${failedCount} (${Math.round(failedCount/totalSelected*100)}%)`);
-        console.groupCollapsed('❌ Failed Employees Details');
+        console.groupCollapsed(`❌ Failed Employees Details (${failedCount})`);
         failedEmployees.forEach((failure: string, index: number) => {
           console.error(`${index + 1}. ${failure}`);
         });
         console.groupEnd();
-        console.log('💡 Suggestion: Check Google Sheets for missing or invalid data (Basic Salary, ESI, PF values)');
-        console.groupEnd();
+      }
+      console.groupEnd();
+      
+      if (failedCount === 0 && actualSuccessCount === totalSelected) {
+        setSuccess(`✅ Successfully generated all ${actualSuccessCount} payslips! (${(generationDuration/1000).toFixed(1)}s)`);
+        console.log(`🎉 Perfect! All ${actualSuccessCount} payslips generated successfully in ${(generationDuration/1000).toFixed(1)}s.`);
+      } else if (actualSuccessCount > 0) {
+        // Show detailed success/failure breakdown
+        const shortFailedList = failedEmployees.slice(0, 3).map(f => f.split(' (')[0]).join(', ');
+        const moreFailures = failedCount > 3 ? ` and ${failedCount - 3} others` : '';
+        
+        if (actualSuccessCount >= totalSelected * 0.8) { // 80% or more success
+          setSuccess(
+            `✅ Generated ${actualSuccessCount}/${totalSelected} payslips (${successRate}%). ` +
+            `⚠️ Failed: ${shortFailedList}${moreFailures}. ` +
+            `${apiErrorCount > 0 ? `${apiErrorCount} network errors. ` : ''}Check console for details.`
+          );
+        } else { // Less than 80% success - treat as error
+          setError(
+            `⚠️ Only ${actualSuccessCount}/${totalSelected} payslips (${successRate}%). ` +
+            `❌ Failed: ${shortFailedList}${moreFailures}. ` +
+            `${apiErrorCount > 0 ? `${apiErrorCount} network errors detected. ` : ''}Check console & data.`
+          );
+        }
       } else {
         // Complete failure
         const shortFailedList = failedEmployees.slice(0, 5).join(', ');
