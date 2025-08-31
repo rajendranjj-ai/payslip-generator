@@ -65,85 +65,140 @@ export class PayslipCalculator {
   }
 
   static numberToWords(num: number): string {
+    // Input validation to prevent crashes
+    if (typeof num !== 'number' || isNaN(num) || !isFinite(num)) {
+      console.error('Invalid number passed to numberToWords:', num);
+      return 'Invalid Amount';
+    }
+
+    // Handle negative numbers
+    if (num < 0) {
+      return 'Negative ' + PayslipCalculator.numberToWords(Math.abs(num));
+    }
+
+    // Round to avoid floating point precision issues
+    num = Math.round(Math.abs(num));
+
     const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
     const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
     const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
     if (num === 0) return 'Zero';
 
+    // Handle very large numbers to prevent crashes
+    if (num >= 1000000000000) {
+      return 'Amount Too Large';
+    }
+
     let result = '';
 
-    // Handle crores
-    if (num >= 10000000) {
-      const crores = Math.floor(num / 10000000);
-      result += this.convertHundreds(crores) + ' Crore ';
-      num %= 10000000;
-    }
+    try {
+      // Handle crores
+      if (num >= 10000000) {
+        const crores = Math.floor(num / 10000000);
+        result += PayslipCalculator.convertHundreds(crores) + ' Crore ';
+        num %= 10000000;
+      }
 
-    // Handle lakhs
-    if (num >= 100000) {
-      const lakhs = Math.floor(num / 100000);
-      result += this.convertHundreds(lakhs) + ' Lakh ';
-      num %= 100000;
-    }
+      // Handle lakhs
+      if (num >= 100000) {
+        const lakhs = Math.floor(num / 100000);
+        result += PayslipCalculator.convertHundreds(lakhs) + ' Lakh ';
+        num %= 100000;
+      }
 
-    // Handle thousands
-    if (num >= 1000) {
-      const thousands = Math.floor(num / 1000);
-      result += this.convertHundreds(thousands) + ' Thousand ';
-      num %= 1000;
-    }
+      // Handle thousands
+      if (num >= 1000) {
+        const thousands = Math.floor(num / 1000);
+        result += PayslipCalculator.convertHundreds(thousands) + ' Thousand ';
+        num %= 1000;
+      }
 
-    // Handle hundreds
-    if (num >= 100) {
-      const hundreds = Math.floor(num / 100);
-      result += ones[hundreds] + ' Hundred ';
-      num %= 100;
-    }
+      // Handle hundreds
+      if (num >= 100) {
+        const hundreds = Math.floor(num / 100);
+        if (hundreds < ones.length) {
+          result += ones[hundreds] + ' Hundred ';
+        }
+        num %= 100;
+      }
 
-    // Handle tens and ones
-    if (num >= 20) {
-      const tensPlace = Math.floor(num / 10);
-      result += tens[tensPlace] + ' ';
-      num %= 10;
-    } else if (num >= 10) {
-      result += teens[num - 10] + ' ';
-      num = 0;
-    }
+      // Handle tens and ones
+      if (num >= 20) {
+        const tensPlace = Math.floor(num / 10);
+        if (tensPlace < tens.length) {
+          result += tens[tensPlace] + ' ';
+        }
+        num %= 10;
+      } else if (num >= 10) {
+        const teensIndex = num - 10;
+        if (teensIndex >= 0 && teensIndex < teens.length) {
+          result += teens[teensIndex] + ' ';
+        }
+        num = 0;
+      }
 
-    if (num > 0) {
-      result += ones[num] + ' ';
-    }
+      if (num > 0 && num < ones.length) {
+        result += ones[num] + ' ';
+      }
 
-    return result.trim() + ' Only';
+      return result.trim() + ' Only';
+    } catch (error) {
+      console.error('Error in numberToWords conversion:', error);
+      return 'Conversion Error';
+    }
   }
 
   private static convertHundreds(num: number): string {
+    // Input validation
+    if (typeof num !== 'number' || isNaN(num) || !isFinite(num) || num < 0) {
+      console.error('Invalid number passed to convertHundreds:', num);
+      return '';
+    }
+
+    // Round and ensure within bounds
+    num = Math.round(num);
+    if (num > 999) {
+      num = 999; // Cap at maximum for hundreds conversion
+    }
+
     const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
     const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
     const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
     let result = '';
 
-    if (num >= 100) {
-      const hundreds = Math.floor(num / 100);
-      result += ones[hundreds] + ' Hundred ';
-      num %= 100;
-    }
+    try {
+      if (num >= 100) {
+        const hundreds = Math.floor(num / 100);
+        if (hundreds > 0 && hundreds < ones.length) {
+          result += ones[hundreds] + ' Hundred ';
+        }
+        num %= 100;
+      }
 
-    if (num >= 20) {
-      const tensPlace = Math.floor(num / 10);
-      result += tens[tensPlace] + ' ';
-      num %= 10;
-    } else if (num >= 10) {
-      result += teens[num - 10] + ' ';
-      num = 0;
-    }
+      if (num >= 20) {
+        const tensPlace = Math.floor(num / 10);
+        if (tensPlace < tens.length) {
+          result += tens[tensPlace] + ' ';
+        }
+        num %= 10;
+      } else if (num >= 10) {
+        const teensIndex = num - 10;
+        if (teensIndex >= 0 && teensIndex < teens.length) {
+          result += teens[teensIndex] + ' ';
+        }
+        num = 0;
+      }
 
-    if (num > 0) {
-      result += ones[num] + ' ';
-    }
+      if (num > 0 && num < ones.length) {
+        result += ones[num] + ' ';
+      }
 
-    return result.trim();
+      return result.trim();
+    } catch (error) {
+      console.error('Error in convertHundreds:', error);
+      return '';
+    }
   }
 }

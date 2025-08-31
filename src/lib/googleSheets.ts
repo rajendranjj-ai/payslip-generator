@@ -75,14 +75,27 @@ export class GoogleSheetsService {
 
         // ALWAYS generate unique employee ID based on name + row index
         // This prevents duplicate IDs when Google Sheet has job titles instead of unique IDs
-        const name = row[0] || 'Unknown';
-        const namePrefix = name.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+        const rawName = row[0];
+        const name = (rawName && typeof rawName === 'string') ? rawName.trim() : 'Unknown';
+        
+        let namePrefix = 'UNK'; // Default prefix
+        try {
+          if (name && name !== 'Unknown') {
+            const cleanName = String(name).replace(/[^a-zA-Z]/g, '');
+            namePrefix = cleanName.length >= 3 ? cleanName.substring(0, 3).toUpperCase() : 
+                        cleanName.length > 0 ? cleanName.toUpperCase().padEnd(3, 'X') : 'UNK';
+          }
+        } catch (error) {
+          console.error(`Error processing name for row ${index + 1}:`, error);
+          namePrefix = 'ERR';
+        }
+        
         const uniqueEmployeeId = `${namePrefix}${String(index + 1).padStart(3, '0')}`;
         
-        // Use explicit column indices based on the known header structure
+        // Use explicit column indices based on the known header structure with safe access
         // Headers: Name(0), Designation(1), Email(2), Phone(3), Date(4), Basic(5), ESI(6), PF(7), Bank(8), Account(9), IFSC(10)
-        const esiValue = row[6] || '0';  // ESI column is at index 6
-        const pfValue = row[7] || '0';   // PF column is at index 7
+        const esiValue = (row && row[6] !== undefined) ? String(row[6]).trim() : '0';
+        const pfValue = (row && row[7] !== undefined) ? String(row[7]).trim() : '0';
 
         return {
           id: (index + 1).toString(),
