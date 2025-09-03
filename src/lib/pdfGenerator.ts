@@ -337,9 +337,87 @@ export class PayslipPDFGenerator {
           const netSalaryInWords = PayslipCalculator.numberToWords(safeNetSalary);
           const safeName = String(employee.name || 'Unknown Employee');
           const safeDesignation = String(employee.designation || 'Not specified');
+
+          // Calculate experience from date of joining (same logic as single payslip)
+          const calculateExperience = (dateOfJoining: string): string => {
+            try {
+              if (!dateOfJoining || dateOfJoining === 'N/A' || dateOfJoining === '') {
+                return 'Not specified';
+              }
+
+              // Parse the date of joining (assuming format like DD-MM-YYYY or similar)
+              let joiningDate: Date;
+              
+              // Try different date formats
+              if (dateOfJoining.includes('-')) {
+                const parts = dateOfJoining.split('-');
+                if (parts.length === 3) {
+                  // Handle DD-MM-YYYY or YYYY-MM-DD
+                  if (parts[0].length === 4) {
+                    // YYYY-MM-DD format
+                    joiningDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                  } else {
+                    // DD-MM-YYYY format
+                    joiningDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                  }
+                } else {
+                  return 'Invalid date';
+                }
+              } else if (dateOfJoining.includes('/')) {
+                const parts = dateOfJoining.split('/');
+                if (parts.length === 3) {
+                  // Handle DD/MM/YYYY or MM/DD/YYYY
+                  joiningDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                } else {
+                  return 'Invalid date';
+                }
+              } else {
+                return 'Invalid format';
+              }
+
+              const currentDate = new Date();
+              
+              // Calculate years and months
+              let years = currentDate.getFullYear() - joiningDate.getFullYear();
+              let months = currentDate.getMonth() - joiningDate.getMonth();
+              
+              // Adjust for negative months
+              if (months < 0) {
+                years--;
+                months += 12;
+              }
+              
+              // Adjust for day of month
+              if (currentDate.getDate() < joiningDate.getDate()) {
+                months--;
+                if (months < 0) {
+                  years--;
+                  months += 12;
+                }
+              }
+
+              // Format the experience string
+              if (years === 0 && months === 0) {
+                return 'Less than 1 month';
+              } else if (years === 0) {
+                return months === 1 ? '1 month' : `${months} months`;
+              } else if (months === 0) {
+                return years === 1 ? '1 year' : `${years} years`;
+              } else {
+                const yearText = years === 1 ? '1 year' : `${years} years`;
+                const monthText = months === 1 ? '1 month' : `${months} months`;
+                return `${yearText}, ${monthText}`;
+              }
+            } catch (error) {
+              console.error('Error calculating experience:', error);
+              return 'Unable to calculate';
+            }
+          };
+
+          const experience = calculateExperience(employee.dateOfJoining || '');
       
-      // Add page break class for all payslips except the first one
-      const pageBreakClass = index > 0 ? ' page-break' : '';
+          // Add page break class for all payslips except the first one
+          const pageBreakClass = index > 0 ? ' page-break' : '';
 
       return `
         <div class="payslip-container${pageBreakClass}">
