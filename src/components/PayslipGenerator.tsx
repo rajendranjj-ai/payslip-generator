@@ -651,29 +651,19 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
 
                 {/* Working Days */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    <div>
-                      <label className="label-field">Working Days</label>
-                      <input
-                        type="number"
-                        value={workingDays}
-                        onChange={(e) => setWorkingDays(parseInt(e.target.value))}
-                        min="1"
-                        max="31"
-                        className="input-field"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="label-field">Actual Days</label>
-                      <input
-                        type="number"
-                        value={actualWorkingDays}
-                        onChange={(e) => setActualWorkingDays(parseInt(e.target.value))}
-                        min="0"
-                        max={workingDays}
-                        className="input-field"
-                      />
+                  <div>
+                    <label className="label-field">Working Days</label>
+                    <input
+                      type="number"
+                      value={workingDays}
+                      onChange={(e) => setWorkingDays(parseInt(e.target.value))}
+                      min="1"
+                      max="31"
+                      className="input-field"
+                      style={{ maxWidth: '200px' }}
+                    />
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                      Employee experience will be calculated automatically from Date of Joining
                     </div>
                   </div>
                 </div>

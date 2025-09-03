@@ -21,6 +21,84 @@ export class PayslipPDFGenerator {
       const safeMonth = String(month || 'Unknown');
       const safeYear = String(year || new Date().getFullYear());
 
+      // Calculate experience from date of joining
+      const calculateExperience = (dateOfJoining: string): string => {
+        try {
+          if (!dateOfJoining || dateOfJoining === 'N/A' || dateOfJoining === '') {
+            return 'Not specified';
+          }
+
+          // Parse the date of joining (assuming format like DD-MM-YYYY or similar)
+          let joiningDate: Date;
+          
+          // Try different date formats
+          if (dateOfJoining.includes('-')) {
+            const parts = dateOfJoining.split('-');
+            if (parts.length === 3) {
+              // Handle DD-MM-YYYY or YYYY-MM-DD
+              if (parts[0].length === 4) {
+                // YYYY-MM-DD format
+                joiningDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+              } else {
+                // DD-MM-YYYY format
+                joiningDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+              }
+            } else {
+              return 'Invalid date';
+            }
+          } else if (dateOfJoining.includes('/')) {
+            const parts = dateOfJoining.split('/');
+            if (parts.length === 3) {
+              // Handle DD/MM/YYYY or MM/DD/YYYY
+              joiningDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            } else {
+              return 'Invalid date';
+            }
+          } else {
+            return 'Invalid format';
+          }
+
+          const currentDate = new Date();
+          
+          // Calculate years and months
+          let years = currentDate.getFullYear() - joiningDate.getFullYear();
+          let months = currentDate.getMonth() - joiningDate.getMonth();
+          
+          // Adjust for negative months
+          if (months < 0) {
+            years--;
+            months += 12;
+          }
+          
+          // Adjust for day of month
+          if (currentDate.getDate() < joiningDate.getDate()) {
+            months--;
+            if (months < 0) {
+              years--;
+              months += 12;
+            }
+          }
+
+          // Format the experience string
+          if (years === 0 && months === 0) {
+            return 'Less than 1 month';
+          } else if (years === 0) {
+            return months === 1 ? '1 month' : `${months} months`;
+          } else if (months === 0) {
+            return years === 1 ? '1 year' : `${years} years`;
+          } else {
+            const yearText = years === 1 ? '1 year' : `${years} years`;
+            const monthText = months === 1 ? '1 month' : `${months} months`;
+            return `${yearText}, ${monthText}`;
+          }
+        } catch (error) {
+          console.error('Error calculating experience:', error);
+          return 'Unable to calculate';
+        }
+      };
+
+      const experience = calculateExperience(employee.dateOfJoining || '');
+
     return `
       <!DOCTYPE html>
       <html>
@@ -163,7 +241,7 @@ export class PayslipPDFGenerator {
                 <span class="label">Working Days:</span> ${workingDays}
               </div>
               <div class="info-row">
-                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
+                <span class="label">Experience:</span> ${experience}
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
@@ -294,7 +372,7 @@ export class PayslipPDFGenerator {
                 <span class="label">Working Days:</span> ${workingDays}
               </div>
               <div class="info-row">
-                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
+                <span class="label">Experience:</span> ${experience}
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
