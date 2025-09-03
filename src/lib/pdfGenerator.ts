@@ -157,6 +157,12 @@ export class PayslipPDFGenerator {
                 <span class="label">Pay Period:</span> ${month} ${year}
               </div>
               <div class="info-row">
+                <span class="label">Working Days:</span> ${workingDays}
+              </div>
+              <div class="info-row">
+                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
+              </div>
+              <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
               </div>
               <div class="info-row">
@@ -282,6 +288,12 @@ export class PayslipPDFGenerator {
             <div class="employee-right">
               <div class="info-row">
                 <span class="label">Pay Period:</span> ${month} ${year}
+              </div>
+              <div class="info-row">
+                <span class="label">Working Days:</span> ${workingDays}
+              </div>
+              <div class="info-row">
+                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}

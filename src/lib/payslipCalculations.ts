@@ -17,23 +17,18 @@ export class PayslipCalculator {
     const safeESI = Number(employee.esi) || 0;
     const safeOtherDeductions = Number(employee.otherDeductions) || 0;
 
-    // Calculate pro-rated salary based on actual working days
-    const salaryRatio = safeActualWorkingDays / safeWorkingDays;
-
-    // Validate salary ratio
-    if (!isFinite(salaryRatio) || salaryRatio < 0) {
-      throw new Error(`Invalid salary ratio calculated: ${salaryRatio} (Working Days: ${safeWorkingDays}, Actual: ${safeActualWorkingDays})`);
-    }
-
-    // Earnings - handle missing fields gracefully
-    const basicSalary = safeBasicSalary * salaryRatio;
+    // Working days are for display only - salary calculation is not pro-rated
+    // Salary components remain fixed regardless of working days changes
+    
+    // Earnings - use full salary amounts (no pro-rating)
+    const basicSalary = safeBasicSalary;
     
     const grossEarnings = basicSalary;
 
-    // Deductions - handle missing fields gracefully
-    const providentFund = safePF * salaryRatio;
-    const esi = safeESI * salaryRatio;
-    const otherDeductions = safeOtherDeductions * salaryRatio;
+    // Deductions - use full deduction amounts (no pro-rating)
+    const providentFund = safePF;
+    const esi = safeESI;
+    const otherDeductions = safeOtherDeductions;
 
     const totalDeductions = providentFund + esi + otherDeductions;
 
