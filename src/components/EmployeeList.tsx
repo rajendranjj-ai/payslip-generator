@@ -56,40 +56,24 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4">
+    <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-black flex items-center gap-2">
+        <h3 className="card-title">
           <Users className="h-5 w-5" />
           Employees ({employees.length})
         </h3>
         <button
           onClick={handleSelectAll}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          className="btn-small btn-view"
         >
           {selectedEmployees.length === employees.length ? 'Deselect All' : 'Select All'}
         </button>
       </div>
 
-      <div style={{ 
-        background: 'white', 
-        borderRadius: '8px', 
-        border: '1px solid #e5e7eb',
-        overflow: 'hidden',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'auto' }}>
-          <table style={{ 
-            width: '100%', 
-            borderCollapse: 'collapse', 
-            fontSize: '14px'
-          }}>
-            <thead style={{ 
-              background: '#f9fafb', 
-              borderBottom: '2px solid #e5e7eb',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10
-            }}>
+      <div className="table-container">
+        <div className="table-wrapper">
+          <table className="data-table">
+            <thead className="table-header">
               <tr>
                 <th style={{ 
                   textAlign: 'left', 
@@ -211,19 +195,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                 return (
                   <tr
                     key={uniqueId}
-                    style={{
-                      borderBottom: '1px solid #f3f4f6',
-                      background: isSelected ? '#eff6ff' : 'white',
-                      transition: 'background-color 0.15s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.background = '#f9fafb';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = isSelected ? '#eff6ff' : 'white';
-                    }}
+                    className={`table-row ${isSelected ? 'selected' : ''}`}
                   >
                     <td style={{ padding: '12px 16px' }}>
                       <input
@@ -233,11 +205,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                           e.stopPropagation();
                           handleEmployeeToggle(employee.employeeId);
                         }}
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          accentColor: '#2563eb'
-                        }}
+                        className="checkbox-field"
                       />
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -313,26 +281,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                               e.stopPropagation();
                               onPreview(payslip);
                             }}
-                            style={{
-                              padding: '6px',
-                              color: '#2563eb',
-                              background: 'transparent',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#dbeafe';
-                              e.currentTarget.style.color = '#1d4ed8';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = '#2563eb';
-                            }}
+                            className="btn-icon btn-icon-view"
                             title="Preview Payslip"
                           >
                             <Eye style={{ width: '16px', height: '16px' }} />
@@ -342,26 +291,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                               e.stopPropagation();
                               onDownloadPDF(employee);
                             }}
-                            style={{
-                              padding: '6px',
-                              color: '#059669',
-                              background: 'transparent',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#d1fae5';
-                              e.currentTarget.style.color = '#047857';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = '#059669';
-                            }}
+                            className="btn-icon btn-icon-download"
                             title="Download PDF"
                           >
                             <Download style={{ width: '16px', height: '16px' }} />

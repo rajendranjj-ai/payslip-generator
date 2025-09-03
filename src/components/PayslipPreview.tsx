@@ -73,42 +73,14 @@ export const PayslipPreview: React.FC<PayslipPreviewProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
               onClick={onDownload}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                border: 'none',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+              className="btn-small btn-download"
             >
               <Download style={{ width: '16px', height: '16px' }} />
               Download PDF
             </button>
             <button
               onClick={onClose}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'transparent',
-                color: '#374151',
-                padding: '0.5rem',
-                borderRadius: '6px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              className="btn-icon btn-icon-close"
             >
               <X style={{ width: '20px', height: '20px' }} />
             </button>

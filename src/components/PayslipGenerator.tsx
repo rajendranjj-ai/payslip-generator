@@ -601,9 +601,16 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                   <button
                     onClick={fetchEmployees}
                     disabled={loading}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 text-sm font-medium"
+                    className="btn-small btn-refresh"
                   >
-                    {loading ? 'Loading...' : 'Refresh Data'}
+                    {loading ? (
+                      <>
+                        <div className="spinner" />
+                        Loading...
+                      </>
+                    ) : (
+                      'Refresh Data'
+                    )}
                   </button>
                 </div>
 
@@ -611,11 +618,11 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">Month</label>
+                      <label className="label-field">Month</label>
                       <select
                         value={selectedMonth}
                         onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="select-field"
                       >
                         {months.map((month, index) => (
                           <option key={month} value={index}>
@@ -626,11 +633,11 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">Year</label>
+                      <label className="label-field">Year</label>
                       <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="select-field"
                       >
                         {years.map((year) => (
                           <option key={year} value={year}>
@@ -646,26 +653,26 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">Working Days</label>
+                      <label className="label-field">Working Days</label>
                       <input
                         type="number"
                         value={workingDays}
                         onChange={(e) => setWorkingDays(parseInt(e.target.value))}
                         min="1"
                         max="31"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="input-field"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">Actual Days</label>
+                      <label className="label-field">Actual Days</label>
                       <input
                         type="number"
                         value={actualWorkingDays}
                         onChange={(e) => setActualWorkingDays(parseInt(e.target.value))}
                         min="0"
                         max={workingDays}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="input-field"
                       />
                     </div>
                   </div>
@@ -818,15 +825,16 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                   <button
                     onClick={generatePayslips}
                     disabled={loading || isGenerating || isDownloading || selectedEmployees.length === 0}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                    className="btn-primary w-full"
+                    style={{ width: '100%' }}
                   >
                     {isGenerating ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                        <div className="spinner" />
                         Generating... ({generationProgress}%)
                       </>
                     ) : loading ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      <div className="spinner" />
                     ) : (
                       <FileText className="h-4 w-4" />
                     )}
@@ -843,20 +851,21 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
                       selectedEmployees.length === 0 || 
                       !payslips.some(payslip => selectedEmployees.includes(payslip.employee.employeeId))
                     }
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                    className="btn-secondary w-full"
+                    style={{ width: '100%' }}
                   >
                     {isDownloading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                        <div className="spinner" />
                         Generating PDF... ({downloadProgress}%)
                       </>
                     ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <>
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                         </svg>
                         Download All as Single PDF
-                      </div>
+                      </>
                     )}
                   </button>
                 </div>

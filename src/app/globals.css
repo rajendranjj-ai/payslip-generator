@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import modern component styles */
+@import '../styles/components.css';
+
 /* Custom CSS for reliable styling */
 * {
   box-sizing: border-box;
