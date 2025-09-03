@@ -105,6 +105,38 @@ export class PayslipPDFGenerator {
       <head>
         <meta charset="UTF-8">
         <style>
+          @page {
+            margin: 0;
+            size: A4;
+          }
+          
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            
+            /* Hide browser headers and footers */
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              height: 100% !important;
+              overflow: hidden !important;
+            }
+            
+            /* Ensure proper page fitting */
+            .payslip-container {
+              margin: 0 !important;
+              padding: 20px !important;
+              page-break-inside: avoid;
+              width: 100% !important;
+              max-width: none !important;
+              box-sizing: border-box;
+            }
+          }
+          
           body {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -523,6 +555,38 @@ export class PayslipPDFGenerator {
         <meta charset="UTF-8">
         <title>Payslips - ${payslipDataArray[0]?.month || 'Unknown'} ${payslipDataArray[0]?.year || 'Unknown'}</title>
         <style>
+          @page {
+            margin: 0;
+            size: A4;
+          }
+          
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            
+            /* Hide browser headers and footers */
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              height: 100% !important;
+              overflow: hidden !important;
+            }
+            
+            /* Ensure proper page fitting */
+            .payslip-container {
+              margin: 0 !important;
+              padding: 20px !important;
+              page-break-inside: avoid;
+              width: 100% !important;
+              max-width: none !important;
+              box-sizing: border-box;
+            }
+          }
+          
           body {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -631,13 +695,10 @@ export class PayslipPDFGenerator {
             padding-top: 5px;
           }
           
-          /* Print-specific styles */
+          /* Additional print-specific styles */
           @media print {
-            body {
-              padding: 0;
-            }
             .payslip-container {
-              margin-bottom: 0;
+              margin-bottom: 0 !important;
               page-break-after: always;
             }
             .payslip-container:last-child {

@@ -373,15 +373,27 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       const htmlContent = await response.text();
       
       // Create a new window with the payslip content
-      const printWindow = window.open('', '_blank');
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
       if (printWindow) {
         printWindow.document.write(htmlContent);
         printWindow.document.close();
         
-        // Trigger print dialog
+        // Trigger print dialog with better configuration
         printWindow.onload = () => {
-          printWindow.print();
+          // Small delay to ensure content is fully rendered
+          setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+          }, 500);
         };
+        
+        // Fallback in case onload doesn't fire
+        setTimeout(() => {
+          if (printWindow && !printWindow.closed) {
+            printWindow.focus();
+            printWindow.print();
+          }
+        }, 1000);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download PDF');
@@ -452,7 +464,7 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
       setDownloadProgress(80);
 
       // Create a new window with all payslips in a single document
-      const printWindow = window.open('', '_blank');
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
       if (!printWindow) {
         throw new Error('Unable to open print window. Please check your popup blocker settings or allow popups for this site.');
       }
@@ -470,6 +482,7 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
         printWindow.onload = () => {
           console.log('🖨️ Print dialog opening...');
           setTimeout(() => {
+            printWindow.focus();
             printWindow.print();
           }, 500); // Small delay to ensure content is fully rendered
         };
@@ -477,6 +490,7 @@ export const PayslipGenerator: React.FC<PayslipGeneratorProps> = ({ className })
         // Fallback in case onload doesn't fire
         setTimeout(() => {
           if (printWindow && !printWindow.closed) {
+            printWindow.focus();
             printWindow.print();
           }
         }, 2000);
