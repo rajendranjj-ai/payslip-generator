@@ -208,11 +208,9 @@ export class PayslipPDFGenerator {
           </div>
 
           <div class="footer">
-            <div>
-              <div><strong>Bank Details:</strong></div>
-              ${employee.bankName ? `<div>Bank: ${employee.bankName}</div>` : '<div>Bank: Not provided</div>'}
-              ${employee.accountNumber ? `<div>Account: ${employee.accountNumber}</div>` : '<div>Account: Not provided</div>'}
-              ${employee.ifscCode ? `<div>IFSC: ${employee.ifscCode}</div>` : '<div>IFSC: Not provided</div>'}
+            <div class="signature-section">
+              <div>Receiver's Signature</div>
+              <div class="signature-line"></div>
             </div>
             <div class="signature-section">
               <div>Authorized Signatory</div>
@@ -341,11 +339,9 @@ export class PayslipPDFGenerator {
           </div>
 
           <div class="footer">
-            <div>
-              <div><strong>Bank Details:</strong></div>
-              ${employee.bankName ? `<div>Bank: ${employee.bankName}</div>` : '<div>Bank: Not provided</div>'}
-              ${employee.accountNumber ? `<div>Account: ${employee.accountNumber}</div>` : '<div>Account: Not provided</div>'}
-              ${employee.ifscCode ? `<div>IFSC: ${employee.ifscCode}</div>` : '<div>IFSC: Not provided</div>'}
+            <div class="signature-section">
+              <div>Receiver's Signature</div>
+              <div class="signature-line"></div>
             </div>
             <div class="signature-section">
               <div>Authorized Signatory</div>
