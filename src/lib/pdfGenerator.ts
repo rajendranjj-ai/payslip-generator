@@ -151,6 +151,9 @@ export class PayslipPDFGenerator {
               <div class="info-row">
                 <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
               </div>
+              <div class="info-row">
+                <span class="label">Account No:</span> ${employee.accountNumber}
+              </div>
             </div>
             <div class="employee-right">
               <div class="info-row">
@@ -164,9 +167,6 @@ export class PayslipPDFGenerator {
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
-              </div>
-              <div class="info-row">
-                <span class="label">Account No:</span> ${employee.accountNumber}
               </div>
             </div>
           </div>
@@ -282,6 +282,9 @@ export class PayslipPDFGenerator {
               <div class="info-row">
                 <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
               </div>
+              <div class="info-row">
+                <span class="label">Account No:</span> ${employee.accountNumber}
+              </div>
             </div>
             <div class="employee-right">
               <div class="info-row">
@@ -295,9 +298,6 @@ export class PayslipPDFGenerator {
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
-              </div>
-              <div class="info-row">
-                <span class="label">Account No:</span> ${employee.accountNumber}
               </div>
             </div>
           </div>
