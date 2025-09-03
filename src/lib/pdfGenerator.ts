@@ -151,22 +151,10 @@ export class PayslipPDFGenerator {
               <div class="info-row">
                 <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
               </div>
-              <div class="info-row">
-                <span class="label">ESI Amount:</span> ₹${(employee.esi || 0).toLocaleString('en-IN')}
-              </div>
-              <div class="info-row">
-                <span class="label">PF Amount:</span> ₹${(employee.providentFund || 0).toLocaleString('en-IN')}
-              </div>
             </div>
             <div class="employee-right">
               <div class="info-row">
                 <span class="label">Pay Period:</span> ${month} ${year}
-              </div>
-              <div class="info-row">
-                <span class="label">Working Days:</span> ${workingDays}
-              </div>
-              <div class="info-row">
-                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
@@ -196,12 +184,7 @@ export class PayslipPDFGenerator {
               <td>ESI</td>
               <td class="amount">${(employee.esi || 0).toLocaleString('en-IN')}</td>
             </tr>
-            <tr>
-              <td></td>
-              <td></td>
-              <td>Other Deductions</td>
-              <td class="amount">${(employee.otherDeductions || 0).toLocaleString('en-IN')}</td>
-            </tr>
+
             <tr class="total-row">
               <td><strong>GROSS EARNINGS</strong></td>
               <td class="amount"><strong>₹${grossEarnings.toLocaleString('en-IN')}</strong></td>
@@ -295,22 +278,10 @@ export class PayslipPDFGenerator {
               <div class="info-row">
                 <span class="label">Date of Joining:</span> ${employee.dateOfJoining}
               </div>
-              <div class="info-row">
-                <span class="label">ESI Amount:</span> ₹${(employee.esi || 0).toLocaleString('en-IN')}
-              </div>
-              <div class="info-row">
-                <span class="label">PF Amount:</span> ₹${(employee.providentFund || 0).toLocaleString('en-IN')}
-              </div>
             </div>
             <div class="employee-right">
               <div class="info-row">
                 <span class="label">Pay Period:</span> ${month} ${year}
-              </div>
-              <div class="info-row">
-                <span class="label">Working Days:</span> ${workingDays}
-              </div>
-              <div class="info-row">
-                <span class="label">Actual Working Days:</span> ${actualWorkingDays}
               </div>
               <div class="info-row">
                 <span class="label">Generated Date:</span> ${generatedDate}
@@ -340,12 +311,7 @@ export class PayslipPDFGenerator {
               <td>ESI</td>
               <td class="amount">${(employee.esi || 0).toLocaleString('en-IN')}</td>
             </tr>
-            <tr>
-              <td></td>
-              <td></td>
-              <td>Other Deductions</td>
-              <td class="amount">${(employee.otherDeductions || 0).toLocaleString('en-IN')}</td>
-            </tr>
+
             <tr class="total-row">
               <td><strong>GROSS EARNINGS</strong></td>
               <td class="amount"><strong>₹${grossEarnings.toLocaleString('en-IN')}</strong></td>
